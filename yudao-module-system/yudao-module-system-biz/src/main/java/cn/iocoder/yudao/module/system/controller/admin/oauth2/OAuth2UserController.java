@@ -55,6 +55,7 @@ public class OAuth2UserController {
         // 获得用户基本信息
         AdminUserDO user = userService.getUser(getLoginUserId());
         OAuth2UserInfoRespVO resp = BeanUtils.toBean(user, OAuth2UserInfoRespVO.class);
+        resp.setSub(user.getEmail());
         // 获得部门信息
         if (user.getDeptId() != null) {
             DeptDO dept = deptService.getDept(user.getDeptId());
@@ -66,6 +67,27 @@ public class OAuth2UserController {
             resp.setPosts(BeanUtils.toBean(posts, OAuth2UserInfoRespVO.Post.class));
         }
         return success(resp);
+    }
+
+    @GetMapping("/extend/get")
+    @Operation(summary = "获得用户基本信息")
+    @PreAuthorize("@ss.hasScope('user.read')") //
+    public OAuth2UserInfoRespVO getUserInfoExtend() {
+        // 获得用户基本信息
+        AdminUserDO user = userService.getUser(getLoginUserId());
+        OAuth2UserInfoRespVO resp = BeanUtils.toBean(user, OAuth2UserInfoRespVO.class);
+        resp.setSub(user.getEmail());
+        // 获得部门信息
+        if (user.getDeptId() != null) {
+            DeptDO dept = deptService.getDept(user.getDeptId());
+            resp.setDept(BeanUtils.toBean(dept, OAuth2UserInfoRespVO.Dept.class));
+        }
+        // 获得岗位信息
+        if (CollUtil.isNotEmpty(user.getPostIds())) {
+            List<PostDO> posts = postService.getPostList(user.getPostIds());
+            resp.setPosts(BeanUtils.toBean(posts, OAuth2UserInfoRespVO.Post.class));
+        }
+        return resp;
     }
 
     @PutMapping("/update")

@@ -38,4 +38,8 @@ public interface GlobalErrorCodeConstants {
 
     ErrorCode UNKNOWN = new ErrorCode(999, "未知错误");
 
+    ErrorCode LDAP_USER_PASSWORD_ERROR = new ErrorCode(1000, "LDAP 用户密码错误");
+    ErrorCode LDAP_USER_NOT_FOUND = new ErrorCode(1001, "LDAP 用户不存在");
+    ErrorCode LDAP_USER_DISABLED = new ErrorCode(1002, "LDAP 用户被禁用");
+    ErrorCode LDAP_SYNC_ERROR = new ErrorCode(1003, "LDAP 同步用户失败");
 }

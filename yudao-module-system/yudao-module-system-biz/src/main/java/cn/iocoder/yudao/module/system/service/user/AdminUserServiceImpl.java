@@ -116,6 +116,13 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     @Override
+    public Long insertUser(AdminUserDO adminUserDO) {
+        adminUserDO.setStatus(CommonStatusEnum.ENABLE.getStatus()); // 默认开启
+        userMapper.insert(adminUserDO);
+        return adminUserDO.getId();
+    }
+
+    @Override
     public Long registerUser(AuthRegisterReqVO registerReqVO) {
         // 1.1 校验账户配合
         tenantService.handleTenantInfo(tenant -> {

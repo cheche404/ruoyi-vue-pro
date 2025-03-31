@@ -25,9 +25,9 @@ import static cn.iocoder.yudao.module.system.enums.ErrorCodeConstants.OAUTH2_COD
 public class OAuth2CodeServiceImpl implements OAuth2CodeService {
 
     /**
-     * 授权码的过期时间，默认 5 分钟
+     * 授权码的过期时间，默认 1 分钟
      */
-    private static final Integer TIMEOUT = 5 * 60;
+    private static final Integer TIMEOUT = 1 * 60;
 
     @Resource
     private OAuth2CodeMapper oauth2CodeMapper;

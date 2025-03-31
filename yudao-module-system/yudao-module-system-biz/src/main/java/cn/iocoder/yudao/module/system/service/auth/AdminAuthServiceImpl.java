@@ -3,6 +3,9 @@ package cn.iocoder.yudao.module.system.service.auth;
 import cn.hutool.core.util.ObjectUtil;
 import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
 import cn.iocoder.yudao.framework.common.enums.UserTypeEnum;
+import cn.iocoder.yudao.framework.common.exception.ErrorCode;
+import cn.iocoder.yudao.framework.common.exception.ServiceException;
+import cn.iocoder.yudao.framework.common.exception.enums.GlobalErrorCodeConstants;
 import cn.iocoder.yudao.framework.common.util.monitor.TracerUtils;
 import cn.iocoder.yudao.framework.common.util.servlet.ServletUtils;
 import cn.iocoder.yudao.framework.common.util.validation.ValidationUtils;
@@ -13,6 +16,8 @@ import cn.iocoder.yudao.module.system.api.social.dto.SocialUserBindReqDTO;
 import cn.iocoder.yudao.module.system.api.social.dto.SocialUserRespDTO;
 import cn.iocoder.yudao.module.system.controller.admin.auth.vo.*;
 import cn.iocoder.yudao.module.system.convert.auth.AuthConvert;
+import cn.iocoder.yudao.module.system.dal.dataobject.dept.DeptDO;
+import cn.iocoder.yudao.module.system.dal.dataobject.ldap.LdapPerson;
 import cn.iocoder.yudao.module.system.dal.dataobject.oauth2.OAuth2AccessTokenDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.user.AdminUserDO;
 import cn.iocoder.yudao.module.system.enums.logger.LoginLogTypeEnum;
@@ -30,12 +35,23 @@ import com.xingyuv.captcha.model.vo.CaptchaVO;
 import com.xingyuv.captcha.service.CaptchaService;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.ldap.query.LdapQuery;
+import org.springframework.ldap.query.LdapQueryBuilder;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.validation.Validator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -67,6 +83,10 @@ public class AdminAuthServiceImpl implements AdminAuthService {
     private CaptchaService captchaService;
     @Resource
     private SmsCodeApi smsCodeApi;
+    @Resource
+    private LdapTemplate ldapTemplate;
+    @Resource
+    private PasswordEncoder passwordEncoder;
 
     /**
      * 验证码的开关，默认为 true
@@ -82,7 +102,7 @@ public class AdminAuthServiceImpl implements AdminAuthService {
         AdminUserDO user = userService.getUserByUsername(username);
         if (user == null) {
             createLoginLog(null, username, logTypeEnum, LoginResultEnum.BAD_CREDENTIALS);
-            throw exception(AUTH_LOGIN_BAD_CREDENTIALS);
+            throw exception(USER_NOT_EXISTS);
         }
         if (!userService.isPasswordMatch(password, user.getPassword())) {
             createLoginLog(user.getId(), username, logTypeEnum, LoginResultEnum.BAD_CREDENTIALS);
@@ -96,14 +116,88 @@ public class AdminAuthServiceImpl implements AdminAuthService {
         return user;
     }
 
+    private void ldapValidate(String username, String password) {
+        try {
+            // 构建 LDAP 查询
+            LdapQuery query = LdapQueryBuilder.query()
+              .base("ou=users")
+              .where("uid").is(username); // 精确匹配 uid
+
+            // 执行认证
+            ldapTemplate.authenticate(query, password);
+            // 获取用户信息
+            LdapPerson person = ldapTemplate.findOne(query, LdapPerson.class);
+            if (person == null) {
+                throw new EmptyResultDataAccessException("LDAP 返回用户信息为空", 1);
+            }
+            // 注册用户
+            AdminUserDO adminUserDO = buildSysUser(person, username, password);
+            registerUser(adminUserDO);
+        } catch (AuthenticationException e) {
+            throw new ServiceException(GlobalErrorCodeConstants.LDAP_USER_PASSWORD_ERROR);
+        } catch (EmptyResultDataAccessException e) {
+            throw new ServiceException(GlobalErrorCodeConstants.LDAP_USER_NOT_FOUND);
+        } catch (Exception e) {
+            throw new ServiceException(GlobalErrorCodeConstants.LDAP_SYNC_ERROR);
+        }
+    }
+
+    /**
+     * 构建 SysUser 对象
+     */
+    private AdminUserDO buildSysUser(LdapPerson person, String username, String password) {
+        AdminUserDO adminUserDO = new AdminUserDO();
+        adminUserDO.setUsername(username);
+        adminUserDO.setNickname(person.getSn());
+        adminUserDO.setPassword(passwordEncoder.encode(password));
+        adminUserDO.setEmail(person.getMail());
+        adminUserDO.setMobile(person.getMobile());
+        adminUserDO.setCreator("ldap");
+        HashSet<Long> postIdSet = new HashSet<>();
+        postIdSet.add(4L);
+        adminUserDO.setPostIds(postIdSet); // 普通角色
+
+        // TODO 设置部门
+//        DeptDO dept = new DeptDO();
+//        dept.setDeptName(person.getDepartmentNumber());
+//        List<DeptDO> depts = deptsMapper.selectDeptList(dept);
+//        if (CollectionUtils.isEmpty(depts)) {
+//            logger.error("部门: {} 不存在于部门表中", dept.getDeptName());
+//            throw new ServiceException("部门 " + dept.getDeptName() + " 不存在，请先添加");
+//        }
+        adminUserDO.setDeptId(100L);
+
+        return adminUserDO;
+    }
+
+    /**
+     * 注册用户到系统
+     */
+    private void registerUser(AdminUserDO adminUserDO) {
+        Long result = userService.insertUser(adminUserDO);
+        if (result == 0) {
+            throw new ServiceException(new ErrorCode(222, "注册失败，请联系系统管理员"));
+        }
+    }
+
     @Override
     public AuthLoginRespVO login(AuthLoginReqVO reqVO) {
         // 校验验证码
         validateCaptcha(reqVO);
 
         // 使用账号密码，进行登录
-        AdminUserDO user = authenticate(reqVO.getUsername(), reqVO.getPassword());
+        AdminUserDO user = null;
 
+        try {
+            user = authenticate(reqVO.getUsername(), reqVO.getPassword());
+        } catch (ServiceException e) {
+            if (e.getMessage().contains("不存在")) {
+                // ldap认证，成功后注册
+                ldapValidate(reqVO.getUsername(), reqVO.getPassword());
+                // 再认证一次
+                user = authenticate(reqVO.getUsername(), reqVO.getPassword());
+            }
+        }
         // 如果 socialType 非空，说明需要绑定社交用户
         if (reqVO.getSocialType() != null) {
             socialUserService.bindSocialUser(new SocialUserBindReqDTO(user.getId(), getUserType().getValue(),

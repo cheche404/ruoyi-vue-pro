@@ -35,6 +35,13 @@ public interface AdminUserService {
     Long createUser(@Valid UserSaveReqVO createReqVO);
 
     /**
+     * 插入用户
+     * @param adminUserDO
+     * @return
+     */
+    Long insertUser(@Valid AdminUserDO adminUserDO);
+
+    /**
      * 注册用户
      *
      * @param registerReqVO 用户信息
