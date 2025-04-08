@@ -77,6 +77,12 @@ public class DefaultController {
                 "[IoT 物联网 yudao-module-iot - 已禁用][参考 https://doc.iocoder.cn/iot/build/ 开启]");
     }
 
+//    @RequestMapping(value = { "/admin-api/cmdb/**"})
+//    public CommonResult<Boolean> cmdb404() {
+//        return CommonResult.error(NOT_IMPLEMENTED.getCode(),
+//          "[CMDB yudao-module-cmdb - 已禁用");
+//    }
+
     /**
      * 测试接口：打印 query、header、body
      */

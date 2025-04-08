@@ -196,6 +196,8 @@ public class AdminAuthServiceImpl implements AdminAuthService {
                 ldapValidate(reqVO.getUsername(), reqVO.getPassword());
                 // 再认证一次
                 user = authenticate(reqVO.getUsername(), reqVO.getPassword());
+            } else {
+                throw e;
             }
         }
         // 如果 socialType 非空，说明需要绑定社交用户
