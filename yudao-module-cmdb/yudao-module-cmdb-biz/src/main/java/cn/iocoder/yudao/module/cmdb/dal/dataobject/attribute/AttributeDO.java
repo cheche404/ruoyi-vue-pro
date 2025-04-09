@@ -46,7 +46,7 @@ public class AttributeDO extends BaseDO {
     /**
      * 属性类型（0:字符串, 1:整数, 2:日期, 3:布尔值, 4:浮点数等）
      */
-    private Integer attrType;
+    private String attrType;
     /**
      * 属性校验规则（如正则表达式或长度限制）
      */

@@ -28,9 +28,9 @@ public class AttributeSaveReqVO {
     @NotNull(message = "排序号不能为空")
     private Integer sort;
 
-    @Schema(description = "属性类型（0:字符串, 1:整数, 2:日期, 3:布尔值, 4:浮点数等）", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @NotNull(message = "属性类型（0:字符串, 1:整数, 2:日期, 3:布尔值, 4:浮点数等）不能为空")
-    private Integer attrType;
+    @Schema(description = "属性类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "属性类型不能为空")
+    private String attrType;
 
     @Schema(description = "属性校验规则（如正则表达式或长度限制）")
     private String validationRule;

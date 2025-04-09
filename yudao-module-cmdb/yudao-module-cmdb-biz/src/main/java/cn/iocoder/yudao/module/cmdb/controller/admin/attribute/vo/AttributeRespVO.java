@@ -32,9 +32,9 @@ public class AttributeRespVO {
     @ExcelProperty("排序号")
     private Integer sort;
 
-    @Schema(description = "属性类型（0:字符串, 1:整数, 2:日期, 3:布尔值, 4:浮点数等）", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @ExcelProperty("属性类型（0:字符串, 1:整数, 2:日期, 3:布尔值, 4:浮点数等）")
-    private Integer attrType;
+    @Schema(description = "属性类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "input")
+    @ExcelProperty("属性类型")
+    private String attrType;
 
     @Schema(description = "属性校验规则（如正则表达式或长度限制）")
     @ExcelProperty("属性校验规则（如正则表达式或长度限制）")

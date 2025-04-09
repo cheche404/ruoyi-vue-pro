@@ -28,7 +28,7 @@ public class AttributePageReqVO extends PageParam {
     private Integer sort;
 
     @Schema(description = "属性类型", example = "1")
-    private Integer attrType;
+    private String attrType;
 
     @Schema(description = "属性校验规则（如正则表达式或长度限制）")
     private String validationRule;
