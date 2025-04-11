@@ -355,7 +355,7 @@ public class OAuth2OpenController {
               (LoginUser) authentication.getPrincipal() : null;
             if (!Objects.isNull(loginUser)) {
                 stringRedisTemplate.opsForValue().set(StringUtils.join(GRAFANA_SSO_PREFIX, request.getSession().getId()),
-                  loginUser.getId().toString(), 300, TimeUnit.SECONDS);
+                  loginUser.getId().toString(), 24, TimeUnit.HOURS);
                 currentUserId = getLoginUserId();
             }
         } else {

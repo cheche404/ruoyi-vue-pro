@@ -8,11 +8,13 @@ import cn.iocoder.yudao.module.system.controller.admin.dict.vo.type.DictTypePage
 import cn.iocoder.yudao.module.system.controller.admin.dict.vo.type.DictTypeSaveReqVO;
 import cn.iocoder.yudao.module.system.dal.dataobject.dict.DictTypeDO;
 import cn.iocoder.yudao.module.system.dal.mysql.dict.DictTypeMapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.annotations.VisibleForTesting;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -90,6 +92,13 @@ public class DictTypeServiceImpl implements DictTypeService {
     @Override
     public List<DictTypeDO> getDictTypeList() {
         return dictTypeMapper.selectList();
+    }
+
+    @Override
+    public List<DictTypeDO> getCmdbDictTypeList() {
+        QueryWrapper<DictTypeDO> queryWrapper = new QueryWrapper<>();
+        queryWrapper.like("type", "cmdb");
+        return dictTypeMapper.selectList(queryWrapper);
     }
 
     @VisibleForTesting

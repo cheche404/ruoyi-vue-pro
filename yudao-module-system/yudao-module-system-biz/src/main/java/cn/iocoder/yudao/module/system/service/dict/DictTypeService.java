@@ -67,4 +67,11 @@ public interface DictTypeService {
      */
     List<DictTypeDO> getDictTypeList();
 
+    /**
+     * 获得CMDB全部字典类型列表
+     *
+     * @return 字典类型列表
+     */
+    List<DictTypeDO> getCmdbDictTypeList();
+
 }

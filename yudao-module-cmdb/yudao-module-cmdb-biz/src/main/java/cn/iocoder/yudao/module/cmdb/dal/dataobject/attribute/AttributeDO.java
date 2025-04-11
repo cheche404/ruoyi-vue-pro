@@ -3,7 +3,6 @@ package cn.iocoder.yudao.module.cmdb.dal.dataobject.attribute;
 import lombok.*;
 import java.util.*;
 import java.time.LocalDateTime;
-import java.time.LocalDateTime;
 import com.baomidou.mybatisplus.annotation.*;
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 
@@ -67,5 +66,17 @@ public class AttributeDO extends BaseDO {
      * 属性描述
      */
     private String description;
+    /**
+     * 关联对象类型
+     */
+    private String relationObjectType;
+    /**
+     * 对象模型 ID
+     */
+    private Long objectModelId;
+    /**
+     * 关联字典 ID
+     */
+    private Long relationDictId;
 
 }

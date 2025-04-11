@@ -41,3 +41,9 @@ CREATE TABLE `cmdb_attribute` (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_model_id` (`model_id`) COMMENT '所属对象id索引'
 ) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='CMDB对象属性表';
+
+
+ALTER TABLE `cmdb_attribute`
+    ADD COLUMN `relation_object_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '关联对象类型',
+    ADD COLUMN `object_model_id` bigint DEFAULT NULL COMMENT '对象模型 ID',
+    ADD COLUMN `relation_dict_id` bigint DEFAULT NULL COMMENT '关联字典 ID';

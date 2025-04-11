@@ -241,7 +241,9 @@ yudao:
     permit-all_urls:
       - /admin-api/mp/open/** # 微信公众号开放平台，微信回调接口，不需要登录
       - /admin-api/system/oauth2/**
-      - /admin-api/grafana-proxy/** # 获取图片验证码，不需要登录
+      - /admin-api/system/oauth/logout
+      - /admin-api/system/oidc/**
+      - /admin-api/component-sso-proxy/** # 获取图片验证码，不需要登录
   websocket:
     enable: true # websocket的开关
     path: /infra/ws # 路径
@@ -281,7 +283,8 @@ yudao:
       - /jmreport/* # 积木报表，无法携带租户编号
       - /admin-api/mp/open/** # 微信公众号开放平台，微信回调接口，无法携带租户编号
       - /admin-api/system/oauth2/** # OAuth2 接口，无法携带租户编号
-      - /admin-api/grafana-proxy/**
+      - /admin-api/system/oidc/** # OIDC 接口，无法携带租户编号
+      - /admin-api/component-sso-proxy/**
     ignore-tables:
       - system_tenant
       - system_tenant_package
@@ -361,3 +364,10 @@ debug: false
 # 插件配置 TODO 芋艿：【IOT】需要处理下
 pf4j:
   pluginsDir: /Users/anhaohao/code/gitee/ruoyi-vue-pro/plugins # 插件目录
+
+sso:
+  oidc:
+    private-key: |
+      -----BEGIN PRIVATE KEY-----
+      MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCScZc/mii94TF2rHClLgp1iUG4j4RA+kiNEECyjLEbhGjz5+jBLNZgAtllBZDdtGmn8hcOOeF91VAkF+zhKQ8qGB4RNXX8gy/2uDayNmqO98H3nX5uKJHcH8ORxV4zx62VjJN0cKKUz+ahnShSlcShlCpD/wQ7Hh9tUtIy+wOS2sDUj/M63b7X9dcBarABKx6JZqNugrbPoRpf5zqklddKfDMq91BfKm34AZ+wrkwToOKWb4C5cY51bi3zwatqCixU20spSm/6qdU0U7zv2HxBcepFEqI6i1iIPcPS6ETZtNMyFBNursZPOqtMS94Ss2VIW0GDyviTo4mv1ZNP9K1LAgMBAAECggEAZdRMqrJEcDxdy7p+na1VIoOtymspOJGQz14kzsMcCBlbbXauF11ZN+vjRObI5BEmgtzJAWBoFrq0flSQp8SIQeoBRlAZWdvTB0jy55sFH6LSIp9GIc1eF2WS9RL7vR+06U+V3RrRQo8KPQjt1/dCgmRnu15hj8YTbk5v0XlP89XRho1m49yXJ1TxcYNEFybnXFT779dA+D+9Jbd+9bekQva1D+MQpSCSvKj83tT/FMVodjeVJ3VOOFiSiCTBkTHtoKPbedJjuu8opEYnfHJ5u+Vebk1F4mxvPf3P2eydJwABglOZuXRZ2LxF1z55gC+a1AzOkAIDX1UMBQ9T+gGaGQKBgQDC85QHKxzYvECYaafYk6PEVx31AjoDqRTyMNl5ElgsLWt4w7xo4Yc22BTx8QYuUEO/wkRq3xZbd7sWueNUqUahG67Q4c/cMZ7yFG9HAyZRHhGrikugjkTBVs8WFomC24ef5hQBWz/GqwUO7qEhicm8cPl5aYczArHaS2htoJmkzQKBgQDATVqPOTVxENk+TzM5VySAhLb51yE7R3wzY2xO0yYi6Ubb+IGfD9cWzif7Fle+4g+wvi5Eud32SJJ8oB5b18JxnAYox+AoSmN5QLHdPBE+2SlCEAx3mueA07am/wU8M1LolLEGZBc9F4s5vBGuORpQRTx/8JnwJr2okmj+3v1adwKBgAh9Xwbo47q0iAObJkoSM+GLAaz3ydr69ASQCAhzug9CcxmxPHU8zQygYFkg6+n8aNbi+OPGj0ywbB9TPQkkzgSaFgTWsJygNJHKPgZTpsmFi7NytFRrnablxuLpXFesg7184YYlmSNnszKxRacWPwjLyrF03QRlq6Ub/5I2mjpJAoGBAI7dqSb4uKRsgQlSq9qwzBSTBKFu22h//lzrQ374Tb/oEVXBNQOoMALoXDmlasEMj92eHR+/+pBLcFEYYBWZoQLoiIbpn7YvNeHSV5HmW2WWzpke9TQyqEVEhNFia1BDTRgvx6jY2Y7wm+XjvDr0f4EdPwpKBQOutH61bz3TCuSXAoGAbOqm77EcU88+armQBwmtnvlKT5sK/fjnECS9NoeLIiJobnqtzDvn/MoHlRvRD3XKfOFAPoRniiSUP9sOdx2FsCLQzIapny3HdFzTYRsCITdHT9e29azOmGFyaRWcU/TBsDrxCjdy+u34SsMTaTyih9ufGiE1B+zQ4VOJCl9+eVU=
+      -----END PRIVATE KEY-----

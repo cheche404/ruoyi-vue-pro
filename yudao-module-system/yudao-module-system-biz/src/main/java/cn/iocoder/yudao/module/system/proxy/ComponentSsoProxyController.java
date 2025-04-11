@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.system.ops;
+package cn.iocoder.yudao.module.system.proxy;
 
 import cn.iocoder.yudao.module.system.service.oauth2.OAuth2TokenService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,14 +15,14 @@ import java.io.IOException;
  * @date 2025/3/29
  */
 @RestController
-@RequestMapping("/admin-api/grafana-proxy")
-public class GrafanaProxyController {
+@RequestMapping("/admin-api/component-sso-proxy")
+public class ComponentSsoProxyController {
 
   private static final String GRAFANA_OAUTH_LOGIN_URL = "http://172.31.0.6/grafana/login/generic_oauth";
 
   private final OAuth2TokenService oauth2TokenService;
 
-  public GrafanaProxyController(OAuth2TokenService oauth2TokenService) {
+  public ComponentSsoProxyController(OAuth2TokenService oauth2TokenService) {
     this.oauth2TokenService = oauth2TokenService;
   }
 
@@ -34,4 +34,6 @@ public class GrafanaProxyController {
     String grafanaRedirectUrl = GRAFANA_OAUTH_LOGIN_URL + "?user_id=" + userId;
     response.sendRedirect(grafanaRedirectUrl);
   }
+
+
 }

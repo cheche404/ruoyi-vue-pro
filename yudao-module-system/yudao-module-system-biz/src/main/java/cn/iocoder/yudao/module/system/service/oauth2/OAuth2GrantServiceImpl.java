@@ -60,10 +60,11 @@ public class OAuth2GrantServiceImpl implements OAuth2GrantService {
         }
         // 校验 state 是否匹配
         state = StrUtil.nullToDefault(state, ""); // 数据库 state 为 null 时，会设置为 "" 空串
-//        if (!StrUtil.equals(state, codeDO.getState())) {
-//            throw exception(ErrorCodeConstants.OAUTH2_GRANT_STATE_MISMATCH);
+//        if (!redirectUri.contains("grafana")) {
+//            if (!StrUtil.equals(state, codeDO.getState())) {
+//                throw exception(ErrorCodeConstants.OAUTH2_GRANT_STATE_MISMATCH);
+//            }
 //        }
-
         // 创建访问令牌
         return oauth2TokenService.createAccessToken(codeDO.getUserId(), codeDO.getUserType(),
                 codeDO.getClientId(), codeDO.getScopes());

@@ -60,4 +60,16 @@ public class AttributeRespVO {
     @ExcelProperty("创建时间")
     private LocalDateTime createTime;
 
+    @Schema(description = "关联对象类型", example = "server")
+    @ExcelProperty("关联对象类型")
+    private String relationObjectType;
+
+    @Schema(description = "对象模型 ID", example = "1001")
+    @ExcelProperty("对象模型 ID")
+    private Long objectModelId;
+
+    @Schema(description = "关联字典 ID", example = "2001")
+    @ExcelProperty("关联字典 ID")
+    private Long relationDictId;
+
 }

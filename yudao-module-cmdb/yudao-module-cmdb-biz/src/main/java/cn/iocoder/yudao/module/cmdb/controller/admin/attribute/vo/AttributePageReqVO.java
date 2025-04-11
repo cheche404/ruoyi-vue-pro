@@ -49,4 +49,13 @@ public class AttributePageReqVO extends PageParam {
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime[] createTime;
 
+    @Schema(description = "关联对象类型", example = "server")
+    private String relationObjectType;
+
+    @Schema(description = "对象模型 ID", example = "1001")
+    private Long objectModelId;
+
+    @Schema(description = "关联字典 ID", example = "2001")
+    private Long relationDictId;
+
 }

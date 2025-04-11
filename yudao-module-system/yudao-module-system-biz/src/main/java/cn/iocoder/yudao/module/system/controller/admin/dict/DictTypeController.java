@@ -87,6 +87,14 @@ public class DictTypeController {
         return success(BeanUtils.toBean(list, DictTypeSimpleRespVO.class));
     }
 
+    @GetMapping(value = {"/cmdb-list-all-simple", "cmdb-simple-list"})
+    @Operation(summary = "获得CMDB全部字典类型列表", description = "包括开启 + 禁用的字典类型，主要用于前端的CMDB下拉选项")
+    // 无需添加权限认证，因为前端全局都需要
+    public CommonResult<List<DictTypeSimpleRespVO>> getCmdbSimpleDictTypeList() {
+        List<DictTypeDO> list = dictTypeService.getCmdbDictTypeList();
+        return success(BeanUtils.toBean(list, DictTypeSimpleRespVO.class));
+    }
+
     @Operation(summary = "导出数据类型")
     @GetMapping("/export")
     @PreAuthorize("@ss.hasPermission('system:dict:query')")
