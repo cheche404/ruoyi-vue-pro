@@ -4,9 +4,11 @@ import cn.iocoder.yudao.framework.common.enums.UserTypeEnum;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.framework.common.util.http.HttpUtils;
 import cn.iocoder.yudao.framework.common.util.json.JsonUtils;
+import cn.iocoder.yudao.framework.security.core.LoginUser;
 import cn.iocoder.yudao.module.system.dal.dataobject.oauth2.OAuth2AccessTokenDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.oauth2.OAuth2ClientDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.user.AdminUserDO;
+import cn.iocoder.yudao.module.system.enums.oauth2.OAuth2ClientConstants;
 import cn.iocoder.yudao.module.system.service.oauth2.OAuth2ClientService;
 import cn.iocoder.yudao.module.system.service.oauth2.OAuth2GrantService;
 import cn.iocoder.yudao.module.system.service.oauth2.OAuth2TokenService;
@@ -20,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -41,6 +44,7 @@ import java.util.concurrent.TimeUnit;
 import static cn.iocoder.yudao.framework.common.exception.enums.GlobalErrorCodeConstants.BAD_REQUEST;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception0;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 
 /**
  * OpenID Connect (OIDC) 认证控制器
@@ -66,6 +70,8 @@ public class OIDCServerController {
   private AdminUserService adminUserService;
   @Resource
   private StringRedisTemplate stringRedisTemplate;
+
+  private static final String ARCHERY_SSO_PREFIX = "archery_sso_";
 
   @Value("${sso.oidc.private-key}")
   private String privateKeyPem;
@@ -129,6 +135,7 @@ public class OIDCServerController {
     @RequestParam(value = "nonce", required = false) String nonce,
     HttpServletRequest request
   ) {
+
     try {
       List<String> scopes = Arrays.asList(scope.split(" "));
       if (!scopes.contains("openid")) {
@@ -137,9 +144,21 @@ public class OIDCServerController {
 
       OAuth2ClientDO client = oauth2ClientService.validOAuthClientFromCache(clientId, null,
         "authorization_code", new HashSet<>(scopes), redirectUri);
-
-      Long userId = 141L; // TODO 先写死
-      if (userId == null || userId <= 0) {
+      long currentUserId;
+      String prefix;
+      if (client.getName().contains("archery")) {
+        prefix = OAuth2ClientConstants.ARCHERY_SSO_PREFIX;
+      } else if (client.getName().contains("jumpserver")) {
+        prefix = OAuth2ClientConstants.JUMPSERVER_SSO_PREFIX;
+      } else {
+        prefix = OAuth2ClientConstants.RANCHER_SSO_PREFIX;
+      }
+      String userId = stringRedisTemplate.opsForValue().get(StringUtils.join(prefix, request.getSession().getId()));
+      // TODO 先写死用户ID
+      userId = "141";
+      if (StringUtils.isNotBlank(userId)) {
+        currentUserId = Long.parseLong(userId);
+      } else {
         String loginUrl = getLoginUrl(request) + "?redirect=" +
           encodeUrl(request.getRequestURL().toString() + "?" + request.getQueryString());
         return new ModelAndView("redirect:" + loginUrl);
@@ -147,14 +166,14 @@ public class OIDCServerController {
 
       if (StringUtils.isNotBlank(nonce)) {
         stringRedisTemplate.opsForValue().set(
-          OIDC_NONCE_PREFIX + userId,
+          OIDC_NONCE_PREFIX + currentUserId,
           nonce,
           NONCE_EXPIRE_MINUTES, TimeUnit.MINUTES);
       }
 
       List<String> approvedScopes = new ArrayList<>(scopes);
       String authorizationCode = oauth2GrantService.grantAuthorizationCodeForCode(
-        userId, getUserType(), clientId, approvedScopes, redirectUri, state);
+        currentUserId, getUserType(), clientId, approvedScopes, redirectUri, state);
 
       String redirectUrl = OAuth2Utils.buildAuthorizationCodeRedirectUri(redirectUri, authorizationCode, state);
       return new ModelAndView("redirect:" + redirectUrl);
@@ -201,7 +220,7 @@ public class OIDCServerController {
         throw exception0(BAD_REQUEST.getCode(), "用户不存在");
       }
 
-      String idToken = generateIdToken(accessTokenDO, user, client);
+      String idToken = generateIdToken(accessTokenDO, user, client, request);
 
       Map<String, Object> respMap = new HashMap<>();
       respMap.put("access_token", accessTokenDO.getAccessToken());
@@ -212,8 +231,6 @@ public class OIDCServerController {
       respMap.put("expires_in", expiresIn);
       respMap.put("refresh_token", accessTokenDO.getRefreshToken());
       respMap.put("id_token", idToken);
-      System.out.println("----------------: idToken: " + idToken);
-
       return respMap;
     } catch (Exception e) {
       log.error("OIDC token error", e);
@@ -287,10 +304,11 @@ public class OIDCServerController {
   }
 
   // 修改 generateIdToken 使用 RS256 签名
-  private String generateIdToken(OAuth2AccessTokenDO accessTokenDO, AdminUserDO user, OAuth2ClientDO client) throws Exception {
+  private String generateIdToken(OAuth2AccessTokenDO accessTokenDO,
+                                 AdminUserDO user,
+                                 OAuth2ClientDO client,
+                                 HttpServletRequest request) throws Exception {
     String nonce = stringRedisTemplate.opsForValue().get(OIDC_NONCE_PREFIX + accessTokenDO.getUserId());
-
-
 
     Map<String, Object> header = new HashMap<>();
     header.put("alg", "RS256");
@@ -298,7 +316,7 @@ public class OIDCServerController {
     header.put("kid", "sso-component");
 
     Map<String, Object> payload = new HashMap<>();
-    payload.put("iss", getIssuerUrl(null));
+    payload.put("iss", getIssuerUrl(request));
     payload.put("sub", String.valueOf(user.getId()));
     payload.put("aud", client.getClientId());
     long nowSeconds = System.currentTimeMillis() / 1000;
@@ -371,7 +389,7 @@ public class OIDCServerController {
 
   private String getIssuerUrl(HttpServletRequest request) {
     if (request == null) {
-      return "https://yourdomain.com";
+      return "http://172.31.0.6";
     }
     String scheme = request.getScheme();
     String serverName = request.getServerName();

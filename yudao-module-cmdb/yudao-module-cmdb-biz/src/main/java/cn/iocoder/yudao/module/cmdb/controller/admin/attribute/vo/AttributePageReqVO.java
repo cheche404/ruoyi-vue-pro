@@ -55,7 +55,7 @@ public class AttributePageReqVO extends PageParam {
     @Schema(description = "对象模型 ID", example = "1001")
     private Long objectModelId;
 
-    @Schema(description = "关联字典 ID", example = "2001")
-    private Long relationDictId;
+    @Schema(description = "关联字典", example = "2001")
+    private String relationDictId;
 
 }

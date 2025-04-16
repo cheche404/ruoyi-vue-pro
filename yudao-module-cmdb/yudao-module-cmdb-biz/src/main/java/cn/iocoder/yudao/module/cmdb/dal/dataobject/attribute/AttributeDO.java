@@ -75,8 +75,8 @@ public class AttributeDO extends BaseDO {
      */
     private Long objectModelId;
     /**
-     * 关联字典 ID
+     * 关联字典
      */
-    private Long relationDictId;
+    private String relationDictId;
 
 }
