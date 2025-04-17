@@ -83,5 +83,19 @@ public class ComponentSsoProxyController {
     return success("success");
   }
 
+  @GetMapping("/sso-rancher")
+  public CommonResult<String> redirectToRancher(@RequestParam("token") String userToken,
+                                                   HttpServletRequest request) {
+    Long userId = oauth2TokenService.getAccessToken(userToken).getUserId();
+    String sessionId = request.getSession().getId();
+    if (StringUtils.isNotBlank(sessionId) && !Objects.isNull(userId)) {
+      stringRedisTemplate.opsForValue().set(
+        StringUtils.join(OAuth2ClientConstants.RANCHER_SSO_PREFIX, request.getSession().getId()),
+        userId.toString(),
+        24,
+        TimeUnit.HOURS);
+    }
+    return success("success");
+  }
 
 }

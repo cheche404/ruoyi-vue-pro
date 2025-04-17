@@ -154,8 +154,6 @@ public class OIDCServerController {
         prefix = OAuth2ClientConstants.RANCHER_SSO_PREFIX;
       }
       String userId = stringRedisTemplate.opsForValue().get(StringUtils.join(prefix, request.getSession().getId()));
-      // TODO 先写死用户ID
-      userId = "141";
       if (StringUtils.isNotBlank(userId)) {
         currentUserId = Long.parseLong(userId);
       } else {
