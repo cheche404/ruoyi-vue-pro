@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.cmdb.controller.admin.mysql.vo;
+package cn.iocoder.yudao.module.cmdb.controller.admin.redis.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -7,13 +7,13 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDateTime;
 import com.alibaba.excel.annotation.*;
 
-@Schema(description = "管理后台 - CMDB-MySQL Response VO")
+@Schema(description = "管理后台 - CMDB-Redis Response VO")
 @Data
 @ExcelIgnoreUnannotated
-public class MysqlRespVO {
+public class RedisRespVO {
 
-    @Schema(description = "MySQL实例-ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "6417")
-    @ExcelProperty("MySQL实例-ID")
+    @Schema(description = "Redis实例-ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "25986")
+    @ExcelProperty("Redis实例-ID")
     private Long id;
 
     @Schema(description = "云区域")
@@ -40,25 +40,41 @@ public class MysqlRespVO {
     @ExcelProperty("推广者")
     private String promoter;
 
-    @Schema(description = "云实例ID", example = "8106")
-    @ExcelProperty("云实例ID")
+    @Schema(description = "实例ID", example = "20746")
+    @ExcelProperty("实例ID")
     private String instanceId;
 
-    @Schema(description = "云实例名称", example = "王五")
-    @ExcelProperty("云实例名称")
+    @Schema(description = "实例名称", example = "赵六")
+    @ExcelProperty("实例名称")
     private String instanceName;
 
     @Schema(description = "域名")
     @ExcelProperty("域名")
     private String host;
 
-    @Schema(description = "实例部署方式", example = "1")
-    @ExcelProperty("实例部署方式")
+    @Schema(description = "域名只读")
+    @ExcelProperty("域名只读")
+    private String hostReadonly;
+
+    @Schema(description = "部署方式", example = "1")
+    @ExcelProperty("部署方式")
     private String clusterType;
 
-    @Schema(description = "存储大小（单位：GB）")
-    @ExcelProperty("存储大小（单位：GB）")
-    private Integer storage;
+    @Schema(description = "端口")
+    @ExcelProperty("端口")
+    private String port;
+
+    @Schema(description = "密码")
+    @ExcelProperty("密码")
+    private String passwd;
+
+    @Schema(description = "内存大小(GB)")
+    @ExcelProperty("内存大小(GB)")
+    private Integer mem;
+
+    @Schema(description = "离线")
+    @ExcelProperty("离线")
+    private String offline;
 
     @Schema(description = "自建")
     @ExcelProperty("自建")
@@ -68,10 +84,6 @@ public class MysqlRespVO {
     @ExcelProperty("备注")
     private String notes;
 
-    @Schema(description = "是否离线")
-    @ExcelProperty("是否离线")
-    private String offline;
-
     @Schema(description = "组织单位")
     @ExcelProperty("组织单位")
     private String ou;
@@ -80,12 +92,16 @@ public class MysqlRespVO {
     @ExcelProperty("标签")
     private String tags;
 
-    @Schema(description = "监控exporterIP")
-    @ExcelProperty("监控exporterIP")
+    @Schema(description = "主机信息")
+    @ExcelProperty("主机信息")
+    private String nodeInfo;
+
+    @Schema(description = "exporter-ip")
+    @ExcelProperty("exporter-ip")
     private String exporterIp;
 
-    @Schema(description = "监控exporter端口")
-    @ExcelProperty("监控exporter端口")
+    @Schema(description = "exporter端口")
+    @ExcelProperty("exporter端口")
     private String exporterPort;
 
     @Schema(description = "监控")

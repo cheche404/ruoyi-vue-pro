@@ -25,5 +25,9 @@ public interface ErrorCodeConstants {
     ErrorCode MYSQL_IMPORT_LIST_IS_EMPTY = new ErrorCode(1_004_001_001, "导入MySQL列表为空");
     ErrorCode MYSQL_INSTANCE_NAME_EXISTS = new ErrorCode(1_004_001_002, "MySQL instanceName 已经存在");
 
+// ========== CMDB Redis 模块 1_005_001_000 ===========
+    ErrorCode REDIS_NOT_EXISTS = new ErrorCode(1_005_001_000, "Redis不存在");
+    ErrorCode REDIS_IMPORT_LIST_IS_EMPTY = new ErrorCode(1_005_001_001, "导入Redis列表为空");
+    ErrorCode REDIS_INSTANCE_NAME_EXISTS = new ErrorCode(1_005_001_002, "Redis instanceName 已经存在");
 
 }

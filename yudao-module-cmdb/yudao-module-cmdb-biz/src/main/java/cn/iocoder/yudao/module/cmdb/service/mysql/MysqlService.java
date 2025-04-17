@@ -58,11 +58,11 @@ public interface MysqlService {
     /**
      * 批量导入 CMDB MySQL
      *
-     * @param importHosts     导入用户列表
+     * @param importMysqls     导入用户列表
      * @param isUpdateSupport 是否支持更新
      * @return 导入结果
      */
-    MysqlImportRespVO importMysqlList(List<MysqlImportExcelVO> importHosts, boolean isUpdateSupport);
+    MysqlImportRespVO importMysqlList(List<MysqlImportExcelVO> importMysqls, boolean isUpdateSupport);
 
 
 }

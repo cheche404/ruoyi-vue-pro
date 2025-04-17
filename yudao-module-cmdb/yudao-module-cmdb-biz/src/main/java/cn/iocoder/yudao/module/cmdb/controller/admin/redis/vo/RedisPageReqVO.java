@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.cmdb.controller.admin.mysql.vo;
+package cn.iocoder.yudao.module.cmdb.controller.admin.redis.vo;
 
 import lombok.*;
 import java.util.*;
@@ -9,11 +9,11 @@ import java.time.LocalDateTime;
 
 import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
 
-@Schema(description = "管理后台 - CMDB-MySQL分页 Request VO")
+@Schema(description = "管理后台 - CMDB-Redis分页 Request VO")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class MysqlPageReqVO extends PageParam {
+public class RedisPageReqVO extends PageParam {
 
     @Schema(description = "云区域")
     private String cloudArea;
@@ -33,20 +33,32 @@ public class MysqlPageReqVO extends PageParam {
     @Schema(description = "推广者")
     private String promoter;
 
-    @Schema(description = "云实例ID", example = "8106")
+    @Schema(description = "实例ID", example = "20746")
     private String instanceId;
 
-    @Schema(description = "云实例名称", example = "王五")
+    @Schema(description = "实例名称", example = "赵六")
     private String instanceName;
 
     @Schema(description = "域名")
     private String host;
 
-    @Schema(description = "实例部署方式", example = "1")
+    @Schema(description = "域名只读")
+    private String hostReadonly;
+
+    @Schema(description = "部署方式", example = "1")
     private String clusterType;
 
-    @Schema(description = "存储大小（单位：GB）")
-    private Integer storage;
+    @Schema(description = "端口")
+    private String port;
+
+    @Schema(description = "密码")
+    private String passwd;
+
+    @Schema(description = "内存大小(GB)")
+    private Integer mem;
+
+    @Schema(description = "离线")
+    private String offline;
 
     @Schema(description = "自建")
     private String location;
@@ -54,19 +66,19 @@ public class MysqlPageReqVO extends PageParam {
     @Schema(description = "备注")
     private String notes;
 
-    @Schema(description = "是否离线")
-    private String offline;
-
     @Schema(description = "组织单位")
     private String ou;
 
     @Schema(description = "标签")
     private String tags;
 
-    @Schema(description = "监控exporterIP")
+    @Schema(description = "主机信息")
+    private String nodeInfo;
+
+    @Schema(description = "exporter-ip")
     private String exporterIp;
 
-    @Schema(description = "监控exporter端口")
+    @Schema(description = "exporter端口")
     private String exporterPort;
 
     @Schema(description = "监控")
