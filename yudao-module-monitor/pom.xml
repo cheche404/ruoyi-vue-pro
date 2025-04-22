@@ -9,10 +9,10 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <modules>
-    <module>yudao-module-cmdb-api</module>
-    <module>yudao-module-cmdb-biz</module>
+    <module>yudao-module-monitor-api</module>
+    <module>yudao-module-monitor-biz</module>
   </modules>
-  <artifactId>yudao-module-cmdb</artifactId>
+  <artifactId>yudao-module-monitor</artifactId>
   <packaging>pom</packaging>
 
   <name>${project.artifactId}</name>

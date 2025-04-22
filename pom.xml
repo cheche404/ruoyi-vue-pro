@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>cn.iocoder.boot</groupId>
-    <artifactId>yudao</artifactId>
+    <artifactId>ruoyi-vue-pro</artifactId>
     <version>${revision}</version>
     <packaging>pom</packaging>
     <modules>
@@ -16,9 +16,10 @@
         <module>yudao-module-system</module>
         <module>yudao-module-infra</module>
 <!--        <module>yudao-module-member</module>-->
-        <module>yudao-module-bpm</module>
+<!--        <module>yudao-module-bpm</module>-->
         <module>yudao-module-cmdb</module>
-        <module>yudao-module-report</module>
+        <module>yudao-module-monitor</module>
+<!--        <module>yudao-module-report</module>-->
 <!--        <module>yudao-module-mp</module>-->
 <!--        <module>yudao-module-pay</module>-->
 <!--        <module>yudao-module-mall</module>-->

@@ -3,10 +3,10 @@
 FROM eclipse-temurin:8-jre
 
 ## 创建目录，并使用它作为工作目录
-RUN mkdir -p /yudao-server
-WORKDIR /yudao-server
+RUN mkdir -p /ops
+WORKDIR /ops
 ## 将后端项目的 Jar 文件，复制到镜像中
-COPY ./target/yudao-server.jar app.jar
+COPY yudao-server.jar app.jar
 
 ## 设置 TZ 时区
 ENV TZ=Asia/Shanghai
@@ -17,7 +17,7 @@ ENV JAVA_OPTS="-Xms512m -Xmx512m -Djava.security.egd=file:/dev/./urandom"
 ENV ARGS=""
 
 ## 暴露后端项目的 48080 端口
-EXPOSE 48080
+EXPOSE 9527
 
 ## 启动后端项目
 CMD java ${JAVA_OPTS} -jar app.jar $ARGS
