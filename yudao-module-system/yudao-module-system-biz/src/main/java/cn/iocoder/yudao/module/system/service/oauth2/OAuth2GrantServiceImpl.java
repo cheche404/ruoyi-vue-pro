@@ -56,6 +56,8 @@ public class OAuth2GrantServiceImpl implements OAuth2GrantService {
         }
         // 校验 redirectUri 是否匹配
         if (!StrUtil.equals(redirectUri, codeDO.getRedirectUri())) {
+            System.out.println("--------redirectUri--------" + redirectUri);
+            System.out.println("--------codeDO.getRedirectUri()--------" + codeDO.getRedirectUri());
             throw exception(ErrorCodeConstants.OAUTH2_GRANT_REDIRECT_URI_MISMATCH);
         }
         // 校验 state 是否匹配

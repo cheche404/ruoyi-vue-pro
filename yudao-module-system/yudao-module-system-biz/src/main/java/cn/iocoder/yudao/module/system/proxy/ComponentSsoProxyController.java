@@ -5,6 +5,7 @@ import cn.iocoder.yudao.module.system.enums.oauth2.OAuth2ClientConstants;
 import cn.iocoder.yudao.module.system.service.oauth2.OAuth2TokenService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -30,14 +32,13 @@ import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 @RequestMapping("/admin-api/component-sso-proxy")
 public class ComponentSsoProxyController {
 
-  private static final String GRAFANA_OAUTH_LOGIN_URL = "http://172.31.0.6/grafana/login/generic_oauth";
+  @Value("${sso.grafana_callback_url}")
+  private String grafanaCallbackUrl;
 
   private final OAuth2TokenService oauth2TokenService;
 
   @Resource
   private StringRedisTemplate stringRedisTemplate;
-  @Resource
-  private RestTemplate restTemplate;
 
   public ComponentSsoProxyController(OAuth2TokenService oauth2TokenService) {
     this.oauth2TokenService = oauth2TokenService;
@@ -48,7 +49,7 @@ public class ComponentSsoProxyController {
                                 HttpServletResponse response) throws IOException {
     Long userId = oauth2TokenService.getAccessToken(userToken).getUserId();
     // 拼接 OAuth 登录 URL，并附加 state 参数
-    String grafanaRedirectUrl = GRAFANA_OAUTH_LOGIN_URL + "?user_id=" + userId;
+    String grafanaRedirectUrl = grafanaCallbackUrl + "?user_id=" + userId;
     response.sendRedirect(grafanaRedirectUrl);
   }
 
@@ -57,13 +58,19 @@ public class ComponentSsoProxyController {
                                                 HttpServletRequest request) {
     Long userId = oauth2TokenService.getAccessToken(userToken).getUserId();
     String sessionId = request.getSession().getId();
-    if (StringUtils.isNotBlank(sessionId) && !Objects.isNull(userId)) {
+    if (StringUtils.isNotBlank(sessionId) && userId != null) {
+      // 把 userId 绑定到 session 供后续使用
       stringRedisTemplate.opsForValue().set(
-        StringUtils.join(OAuth2ClientConstants.ARCHERY_SSO_PREFIX, request.getSession().getId()),
+        OAuth2ClientConstants.ARCHERY_SSO_PREFIX + sessionId,
         userId.toString(),
-        24,
-        TimeUnit.HOURS);
+        24, TimeUnit.HOURS
+      );
+
+      // 直接返回给前端一个要加载的 Archery 登录 URL
+      String redirectUrl = "http://172.31.0.7:9123/oidc/callback";
+      return CommonResult.success(redirectUrl);
     }
+
     return success("success");
   }
 
@@ -85,9 +92,20 @@ public class ComponentSsoProxyController {
 
   @GetMapping("/sso-rancher")
   public CommonResult<String> redirectToRancher(@RequestParam("token") String userToken,
-                                                   HttpServletRequest request) {
+                                                   HttpServletRequest request, HttpServletResponse response) {
     Long userId = oauth2TokenService.getAccessToken(userToken).getUserId();
     String sessionId = request.getSession().getId();
+    System.out.println("-----------sso-rancher--------------sessionId------------------------" + sessionId);
+
+    // 设置 Cookie
+    Cookie cookie = new Cookie("JSESSIONID", sessionId); // 替换为你的 Cookie 名称和值
+    cookie.setPath("/"); // 设置 Cookie 路径
+    cookie.setDomain("digiwincloud.com.cn");
+    cookie.setMaxAge(60 * 60); // 设置 Cookie 有效期，例如 1 小时
+    cookie.setHttpOnly(true); // 提高安全性，防止客户端脚本访问
+    cookie.setSecure(request.isSecure()); // 仅在 HTTPS 下发送
+    response.addCookie(cookie); // 将 Cookie 添加到响应
+
     if (StringUtils.isNotBlank(sessionId) && !Objects.isNull(userId)) {
       stringRedisTemplate.opsForValue().set(
         StringUtils.join(OAuth2ClientConstants.RANCHER_SSO_PREFIX, request.getSession().getId()),

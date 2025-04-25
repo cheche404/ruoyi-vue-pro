@@ -1,5 +1,5 @@
 server:
-  port: 9527
+  port: 48080
 
 --- #################### 数据库相关配置 ####################
 spring:
@@ -272,6 +272,9 @@ pf4j:
   pluginsDir: ../plugins
 
 sso:
+  vite_base_path: /ops
+  request_black_domain: http://172.31.0.6
+  grafana_callback_url: http://172.31.0.6/grafana/login/generic_oauth
   oidc:
     private-key: |
       -----BEGIN PRIVATE KEY-----

@@ -7,7 +7,6 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.iocoder.yudao.framework.common.enums.UserTypeEnum;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
-import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.yudao.framework.common.util.http.HttpUtils;
 import cn.iocoder.yudao.framework.common.util.json.JsonUtils;
 import cn.iocoder.yudao.framework.security.core.LoginUser;
@@ -18,15 +17,13 @@ import cn.iocoder.yudao.module.system.convert.oauth2.OAuth2OpenConvert;
 import cn.iocoder.yudao.module.system.dal.dataobject.oauth2.OAuth2AccessTokenDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.oauth2.OAuth2ApproveDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.oauth2.OAuth2ClientDO;
-import cn.iocoder.yudao.module.system.dal.dataobject.oauth2.OAuth2CodeDO;
 import cn.iocoder.yudao.module.system.enums.oauth2.OAuth2GrantTypeEnum;
 import cn.iocoder.yudao.module.system.service.oauth2.*;
 import cn.iocoder.yudao.module.system.util.oauth2.OAuth2Utils;
-import com.mchange.lang.LongUtils;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
-import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -37,14 +34,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Resource;
 import javax.annotation.security.PermitAll;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.DatatypeConverter;
-import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -340,13 +331,15 @@ public class OAuth2OpenController {
       @Parameter(name = "client_id", required = true, description = "客户端编号", example = "tudou"),
       @Parameter(name = "scope", description = "授权范围", example = "userinfo.read"), // 使用 Map<String, Boolean> 格式，Spring MVC 暂时不支持这么接收参数
       @Parameter(name = "redirect_uri", required = true, description = "重定向 URI", example = "https://www.iocoder.cn"),
-      @Parameter(name = "state", example = "1")
+      @Parameter(name = "state", example = "1"),
+      @Parameter(name = "token", example = "1"),
     })
     public ModelAndView approveOrDenyExtend(@RequestParam("response_type") String responseType,
                                             @RequestParam("client_id") String clientId,
                                             @RequestParam(value = "scope", required = false) String scope,
                                             @RequestParam("redirect_uri") String redirectUri,
                                             @RequestParam(value = "state", required = false) String state,
+                                            @RequestParam(value = "token", required = false) String token,
                                             HttpServletRequest request,
                                             Authentication authentication) {
         Long currentUserId = 0L;
@@ -398,6 +391,37 @@ public class OAuth2OpenController {
         // 3.2 如果是 token 则是 implicit 简化模式，则发送 accessToken 访问令牌，并重定向
         redirectUrl = getImplicitGrantRedirect(currentUserId, client, approveScopes, redirectUri, state);
         return new ModelAndView("redirect:" + redirectUrl);
+    }
+
+    // 以下方法保持不变
+    private String getLoginUrl(HttpServletRequest request) {
+        String serverUrl = getIssuerUrl(request);
+        return serverUrl + "/login/sso-components";
+    }
+
+    private String getIssuerUrl(HttpServletRequest request) {
+        if (request == null) {
+            return "http://172.31.0.6";
+        }
+        String scheme = request.getScheme();
+        String serverName = request.getServerName();
+        int port = request.getServerPort();
+        String path = request.getContextPath();
+        StringBuilder sb = new StringBuilder();
+        sb.append(scheme).append("://").append(serverName);
+        if (("http".equals(scheme) && port != 80) || ("https".equals(scheme) && port != 443)) {
+            sb.append(":").append(port);
+        }
+        sb.append(path);
+        return sb.toString();
+    }
+
+    private String encodeUrl(String url) {
+        try {
+            return java.net.URLEncoder.encode(url, "UTF-8");
+        } catch (Exception e) {
+            return url;
+        }
     }
 
     private static OAuth2GrantTypeEnum getGrantTypeEnum(String responseType) {
