@@ -340,24 +340,26 @@ public class OAuth2OpenController {
                                             @RequestParam("redirect_uri") String redirectUri,
                                             @RequestParam(value = "state", required = false) String state,
                                             @RequestParam(value = "token", required = false) String token,
-                                            HttpServletRequest request,
-                                            Authentication authentication) {
-        Long currentUserId = 0L;
-        if (!Objects.isNull(authentication)) {
-            LoginUser loginUser = authentication.getPrincipal() instanceof LoginUser ?
-              (LoginUser) authentication.getPrincipal() : null;
-            if (!Objects.isNull(loginUser)) {
-                stringRedisTemplate.opsForValue().set(StringUtils.join(GRAFANA_SSO_PREFIX, request.getSession().getId()),
-                  loginUser.getId().toString(), 24, TimeUnit.HOURS);
-                currentUserId = getLoginUserId();
-            }
-        } else {
-            String userId = stringRedisTemplate.opsForValue().get(StringUtils.join(GRAFANA_SSO_PREFIX, request.getSession().getId()));
-            if (StringUtils.isNotBlank(userId)) {
-                currentUserId = Long.parseLong(userId);
+                                            HttpServletRequest request) {
+        Long currentUserId = getLoginUserId();
+        if (Objects.isNull(currentUserId) || currentUserId == 0L) {
+            if (!StringUtils.isEmpty(token)) {
+                currentUserId = oauth2TokenService.getAccessToken(token).getUserId();
+            } else {
+                if (request.getRequestURL().toString().contains(".digiwin")) {
+                    String loginUrl = getLoginUrl(request) + "?redirect=" +
+                      encodeUrl(request.getRequestURL().toString()
+                        .replace("http://", "https://")
+                        + "?" + request.getQueryString().replace("http://", "https://"));
+                    loginUrl = loginUrl.replace("http://", "https://");
+                    return new ModelAndView("redirect:" + loginUrl);
+                } else {
+                    String loginUrl = getLoginUrl(request) + "?redirect=" +
+                      encodeUrl(request.getRequestURL().toString() + "?" + request.getQueryString());
+                    return new ModelAndView("redirect:" + loginUrl);
+                }
             }
         }
-
         OAuth2ClientDO oAuth2ClientDO = oauth2ClientService.getOAuth2ClientFromCache(clientId);
         List<String> scopeLists = oAuth2ClientDO.getScopes();
         Map<String, Boolean> scopes = new HashMap<>();
@@ -375,7 +377,7 @@ public class OAuth2OpenController {
         OAuth2ClientDO client = oauth2ClientService.validOAuthClientFromCache(clientId, null,
           grantTypeEnum.getGrantType(), scopes.keySet(), redirectUri);
 
-        String redirectUrl = null;
+        String redirectUrl;
 
         // 2 如果无法自动授权通过，则返回空 url，前端不进行跳转
         if (!oauth2ApproveService.checkForPreApproval(currentUserId, getUserType(), clientId, scopes.keySet())) {
@@ -396,7 +398,7 @@ public class OAuth2OpenController {
     // 以下方法保持不变
     private String getLoginUrl(HttpServletRequest request) {
         String serverUrl = getIssuerUrl(request);
-        return serverUrl + "/login/sso-components";
+        return serverUrl + "/ops/login/sso-components";
     }
 
     private String getIssuerUrl(HttpServletRequest request) {

@@ -274,7 +274,7 @@ pf4j:
 sso:
   vite_base_path: /ops
   request_black_domain: https://maxkey-web-hw-test.digiwincloud.com.cn
-  grafana_callback_url: https://monitor-hw-test.digiwincloud.com.cn/grafana/login/generic_oauth
+  grafana_callback_url: https://maxkey-web-hw-test.digiwincloud.com.cn/grafana/login/generic_oauth
   oidc:
     private-key: |
       -----BEGIN PRIVATE KEY-----

@@ -1,14 +1,11 @@
 package cn.iocoder.yudao.module.system.controller.admin.oidc;
 
 import cn.iocoder.yudao.framework.common.enums.UserTypeEnum;
-import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.framework.common.util.http.HttpUtils;
 import cn.iocoder.yudao.framework.common.util.json.JsonUtils;
-import cn.iocoder.yudao.framework.security.core.LoginUser;
 import cn.iocoder.yudao.module.system.dal.dataobject.oauth2.OAuth2AccessTokenDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.oauth2.OAuth2ClientDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.user.AdminUserDO;
-import cn.iocoder.yudao.module.system.enums.oauth2.OAuth2ClientConstants;
 import cn.iocoder.yudao.module.system.service.oauth2.OAuth2ClientService;
 import cn.iocoder.yudao.module.system.service.oauth2.OAuth2GrantService;
 import cn.iocoder.yudao.module.system.service.oauth2.OAuth2TokenService;
@@ -22,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -43,7 +39,6 @@ import java.util.concurrent.TimeUnit;
 
 import static cn.iocoder.yudao.framework.common.exception.enums.GlobalErrorCodeConstants.BAD_REQUEST;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception0;
-import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 
 /**
@@ -76,10 +71,15 @@ public class OIDCServerController {
   @Value("${sso.oidc.private-key}")
   private String privateKeyPem;
 
+  @Value("${sso.vite_base_path}")
+  private String viteBasePath;
+
+  @Value("${sso.request_black_domain}")
+  private String requestBlackDomain;
+
   private PrivateKey privateKey;
   private PublicKey publicKey;
 
-  private static final String OIDC_SESSION_PREFIX = "oidc_session_";
   private static final String OIDC_NONCE_PREFIX = "oidc_nonce_";
   private static final int NONCE_EXPIRE_MINUTES = 10;
 
@@ -116,7 +116,7 @@ public class OIDCServerController {
     return discovery;
   }
 
-  @GetMapping("/authorize")
+  @RequestMapping(value = "/authorize", method = {RequestMethod.GET, RequestMethod.POST})
   @Operation(summary = "OIDC 授权端点")
   @Parameters({
     @Parameter(name = "response_type", required = true, description = "响应类型", example = "code"),
@@ -124,7 +124,8 @@ public class OIDCServerController {
     @Parameter(name = "redirect_uri", required = true, description = "重定向URI", example = "https://example.com/callback"),
     @Parameter(name = "scope", description = "授权范围", example = "openid profile email"),
     @Parameter(name = "state", description = "状态", example = "xyz"),
-    @Parameter(name = "nonce", description = "随机数", example = "n-0S6_WzA2Mj")
+    @Parameter(name = "nonce", description = "随机数", example = "n-0S6_WzA2Mj"),
+    @Parameter(name = "token", description = "用户token", example = "1dflkahdfjakhs")
   })
   public ModelAndView authorize(
     @RequestParam("response_type") String responseType,
@@ -133,46 +134,39 @@ public class OIDCServerController {
     @RequestParam(value = "scope", required = false, defaultValue = "openid") String scope,
     @RequestParam(value = "state", required = false) String state,
     @RequestParam(value = "nonce", required = false) String nonce,
+    @RequestParam(value = "token", required = false) String token,
     HttpServletRequest request
   ) {
-
     try {
       List<String> scopes = Arrays.asList(scope.split(" "));
       if (!scopes.contains("openid")) {
         throw exception0(BAD_REQUEST.getCode(), "scope 必须包含 openid");
       }
-
-      OAuth2ClientDO client = oauth2ClientService.validOAuthClientFromCache(clientId, null,
-        "authorization_code", new HashSet<>(scopes), redirectUri);
       long currentUserId;
-      String prefix;
-      if (client.getName().contains("archery")) {
-        prefix = OAuth2ClientConstants.ARCHERY_SSO_PREFIX;
-      } else if (client.getName().contains("jumpserver")) {
-        prefix = OAuth2ClientConstants.JUMPSERVER_SSO_PREFIX;
-      } else {
-        prefix = OAuth2ClientConstants.RANCHER_SSO_PREFIX;
-      }
-      String userId = stringRedisTemplate.opsForValue().get(StringUtils.join(prefix, request.getSession().getId()));
-      if (StringUtils.isNotBlank(userId)) {
+      String userId = Objects.isNull(getLoginUserId()) ? "" : String.valueOf(getLoginUserId());
+      if (!StringUtils.isEmpty(userId)) {
         currentUserId = Long.parseLong(userId);
       } else {
-        String loginUrl = getLoginUrl(request) + "?redirect=" +
-          encodeUrl(request.getRequestURL().toString() + "?" + request.getQueryString());
-        return new ModelAndView("redirect:" + loginUrl);
+        if (!StringUtils.isEmpty(token)) {
+          currentUserId = oauth2TokenService.getAccessToken(token).getUserId();
+        } else {
+          String loginUrl = getLoginUrl(request) + "?redirect=" +
+            encodeUrl(request.getRequestURL().toString() + "?" + request.getQueryString());
+          return new ModelAndView("redirect:" + loginUrl);
+        }
+      }
+      if (StringUtils.isNotBlank(nonce)) {
+        stringRedisTemplate.opsForValue().set(OIDC_NONCE_PREFIX + currentUserId, nonce, NONCE_EXPIRE_MINUTES, TimeUnit.MINUTES);
       }
 
-      if (StringUtils.isNotBlank(nonce)) {
-        stringRedisTemplate.opsForValue().set(
-          OIDC_NONCE_PREFIX + currentUserId,
-          nonce,
-          NONCE_EXPIRE_MINUTES, TimeUnit.MINUTES);
+      // 适配Archery
+      if (redirectUri.contains(":9123")) {
+        redirectUri = redirectUri.replace(":9123", "").replace("http://", "https://");
       }
 
       List<String> approvedScopes = new ArrayList<>(scopes);
       String authorizationCode = oauth2GrantService.grantAuthorizationCodeForCode(
         currentUserId, getUserType(), clientId, approvedScopes, redirectUri, state);
-
       String redirectUrl = OAuth2Utils.buildAuthorizationCodeRedirectUri(redirectUri, authorizationCode, state);
       return new ModelAndView("redirect:" + redirectUrl);
     } catch (Exception e) {
@@ -192,6 +186,10 @@ public class OIDCServerController {
                                                  @RequestParam(value = "client_id", required = false) String clientId,
                                                  @RequestParam(value = "client_secret", required = false) String clientSecret,
                                                  @RequestParam(value = "state", required = false) String state) {
+    // NOTE 适配Archery
+    if (redirectUri.contains(":9123")) {
+      redirectUri = redirectUri.replace(":9123", "").replace("http://", "https://");
+    }
     try {
       String[] clientIdAndSecret;
       if (StringUtils.isNotBlank(clientId) && StringUtils.isNotBlank(clientSecret)) {
@@ -324,8 +322,14 @@ public class OIDCServerController {
     if (StringUtils.isNotBlank(nonce)) {
       payload.put("nonce", nonce);
     }
+    // TODO 设配生产的LDAP登陆
     payload.put("name", user.getNickname());
     payload.put("preferred_username", user.getUsername());
+
+    // Jumpserver 适配 LDAP 登陆
+//    payload.put("name", "東陽");
+//    payload.put("preferred_username", "付东阳fudy");
+
     if (StringUtils.isNotBlank(user.getEmail())) {
       payload.put("email", user.getEmail());
     }
@@ -382,12 +386,12 @@ public class OIDCServerController {
   // 以下方法保持不变
   private String getLoginUrl(HttpServletRequest request) {
     String serverUrl = getIssuerUrl(request);
-    return serverUrl + "/login";
+    return serverUrl + viteBasePath + "/login/sso-components";
   }
 
   private String getIssuerUrl(HttpServletRequest request) {
     if (request == null) {
-      return "http://172.31.0.6";
+      return requestBlackDomain;
     }
     String scheme = request.getScheme();
     String serverName = request.getServerName();

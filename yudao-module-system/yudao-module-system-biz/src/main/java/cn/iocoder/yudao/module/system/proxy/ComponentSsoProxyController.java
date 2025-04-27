@@ -45,12 +45,15 @@ public class ComponentSsoProxyController {
   }
 
   @GetMapping("/sso")
-  public void redirectToGrafana(@RequestParam("token") String userToken,
-                                HttpServletResponse response) throws IOException {
+  public CommonResult<String> redirectToGrafana(@RequestParam("token") String userToken,
+                                HttpServletResponse response,
+                                HttpServletRequest request) {
     Long userId = oauth2TokenService.getAccessToken(userToken).getUserId();
+    System.out.println("======sso========userid==========" + userId + "=======session=======" + request.getSession().getId());
     // 拼接 OAuth 登录 URL，并附加 state 参数
     String grafanaRedirectUrl = grafanaCallbackUrl + "?user_id=" + userId;
-    response.sendRedirect(grafanaRedirectUrl);
+//    response.sendRedirect(grafanaRedirectUrl);
+    return success("success");
   }
 
   @GetMapping("/sso-archery")
