@@ -16,7 +16,7 @@ import cn.iocoder.yudao.module.system.api.social.dto.SocialUserBindReqDTO;
 import cn.iocoder.yudao.module.system.api.social.dto.SocialUserRespDTO;
 import cn.iocoder.yudao.module.system.controller.admin.auth.vo.*;
 import cn.iocoder.yudao.module.system.convert.auth.AuthConvert;
-import cn.iocoder.yudao.module.system.dal.dataobject.dept.DeptDO;
+import cn.iocoder.yudao.module.system.dal.dataobject.ldap.DigiwinLdapPerson;
 import cn.iocoder.yudao.module.system.dal.dataobject.ldap.LdapPerson;
 import cn.iocoder.yudao.module.system.dal.dataobject.oauth2.OAuth2AccessTokenDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.user.AdminUserDO;
@@ -35,13 +35,11 @@ import com.xingyuv.captcha.model.vo.CaptchaVO;
 import com.xingyuv.captcha.service.CaptchaService;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.query.LdapQuery;
 import org.springframework.ldap.query.LdapQueryBuilder;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -49,10 +47,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.validation.Validator;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.common.util.servlet.ServletUtils.getClientIP;
@@ -95,6 +92,9 @@ public class AdminAuthServiceImpl implements AdminAuthService {
     @Setter // 为了单测：开启或者关闭验证码
     private Boolean captchaEnable;
 
+    @Value("${spring.profiles.active}")
+    private String springProfilesActive;
+
     @Override
     public AdminUserDO authenticate(String username, String password) {
         final LoginLogTypeEnum logTypeEnum = LoginLogTypeEnum.LOGIN_USERNAME;
@@ -118,20 +118,38 @@ public class AdminAuthServiceImpl implements AdminAuthService {
 
     private void ldapValidate(String username, String password) {
         try {
+            // 根据环境选择 baseDN 和查询字段
+            String baseDn;
+            String queryField;
+            Class<?> personClass;
+            Function<Object, AdminUserDO> userBuilder;
+
+            if ("test".equalsIgnoreCase(springProfilesActive) || "prod".equalsIgnoreCase(springProfilesActive)) {
+                baseDn = "DC=digiwin,DC=com";
+                queryField = "sAMAccountName";
+                personClass = DigiwinLdapPerson.class;
+                userBuilder = (person) -> buildDigiwinSysUser((DigiwinLdapPerson) person, username, password);
+            } else {
+                baseDn = "ou=users";
+                queryField = "uid";
+                personClass = LdapPerson.class;
+                userBuilder = (person) -> buildSysUser((LdapPerson) person, username, password);
+            }
+
             // 构建 LDAP 查询
             LdapQuery query = LdapQueryBuilder.query()
-              .base("ou=users")
-              .where("uid").is(username); // 精确匹配 uid
+              .base(baseDn)
+              .where(queryField).is(username);
 
             // 执行认证
             ldapTemplate.authenticate(query, password);
             // 获取用户信息
-            LdapPerson person = ldapTemplate.findOne(query, LdapPerson.class);
+            Object person = ldapTemplate.findOne(query, personClass);
             if (person == null) {
                 throw new EmptyResultDataAccessException("LDAP 返回用户信息为空", 1);
             }
             // 注册用户
-            AdminUserDO adminUserDO = buildSysUser(person, username, password);
+            AdminUserDO adminUserDO = userBuilder.apply(person);
             registerUser(adminUserDO);
         } catch (AuthenticationException e) {
             throw new ServiceException(GlobalErrorCodeConstants.LDAP_USER_PASSWORD_ERROR);
@@ -146,6 +164,34 @@ public class AdminAuthServiceImpl implements AdminAuthService {
      * 构建 SysUser 对象
      */
     private AdminUserDO buildSysUser(LdapPerson person, String username, String password) {
+        AdminUserDO adminUserDO = new AdminUserDO();
+        adminUserDO.setUsername(username);
+        adminUserDO.setNickname(person.getSn());
+        adminUserDO.setPassword(passwordEncoder.encode(password));
+        adminUserDO.setEmail(person.getMail());
+        adminUserDO.setMobile(person.getMobile());
+        adminUserDO.setCreator("ldap");
+        HashSet<Long> postIdSet = new HashSet<>();
+        postIdSet.add(4L);
+        adminUserDO.setPostIds(postIdSet); // 普通角色
+
+        // TODO 设置部门
+//        DeptDO dept = new DeptDO();
+//        dept.setDeptName(person.getDepartmentNumber());
+//        List<DeptDO> depts = deptsMapper.selectDeptList(dept);
+//        if (CollectionUtils.isEmpty(depts)) {
+//            logger.error("部门: {} 不存在于部门表中", dept.getDeptName());
+//            throw new ServiceException("部门 " + dept.getDeptName() + " 不存在，请先添加");
+//        }
+        adminUserDO.setDeptId(100L);
+
+        return adminUserDO;
+    }
+
+    /**
+     * 构建 SysUser 对象
+     */
+    private AdminUserDO buildDigiwinSysUser(DigiwinLdapPerson person, String username, String password) {
         AdminUserDO adminUserDO = new AdminUserDO();
         adminUserDO.setUsername(username);
         adminUserDO.setNickname(person.getSn());

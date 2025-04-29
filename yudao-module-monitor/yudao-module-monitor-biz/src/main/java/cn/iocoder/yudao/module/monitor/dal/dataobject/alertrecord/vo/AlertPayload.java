@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.monitor.dal.dataobject.alert.record.vo;
+package cn.iocoder.yudao.module.monitor.dal.dataobject.alertrecord.vo;
 
 import lombok.Data;
 

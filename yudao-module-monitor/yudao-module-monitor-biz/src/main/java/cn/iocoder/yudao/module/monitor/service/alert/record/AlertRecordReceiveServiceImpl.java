@@ -1,8 +1,8 @@
 package cn.iocoder.yudao.module.monitor.service.alert.record;
 
-import cn.iocoder.yudao.module.monitor.dal.dataobject.alert.record.AlertRecordDO;
-import cn.iocoder.yudao.module.monitor.dal.dataobject.alert.record.vo.AlertPayload;
-import cn.iocoder.yudao.module.monitor.dal.mysql.alert.record.AlertRecordMapper;
+import cn.iocoder.yudao.module.monitor.dal.dataobject.alertrecord.AlertRecordDO;
+import cn.iocoder.yudao.module.monitor.dal.dataobject.alertrecord.vo.AlertPayload;
+import cn.iocoder.yudao.module.monitor.dal.mysql.alertrecord.AlertRecordMapper;
 import cn.iocoder.yudao.module.monitor.enums.AlertTypeInstant;
 import cn.iocoder.yudao.module.monitor.utils.TimeUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -22,12 +22,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * @date 2024/12/10
  */
 @Service
-public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, AlertRecordDO>
-  implements AlertRecordService {
+public class AlertRecordReceiveServiceImpl extends ServiceImpl<AlertRecordMapper, AlertRecordDO>
+  implements AlertRecordReceiveService {
 
   private final AlertRecordMapper alertRecordMapper;
 
-  public AlertRecordServiceImpl(AlertRecordMapper alertRecordMapper) {
+  public AlertRecordReceiveServiceImpl(AlertRecordMapper alertRecordMapper) {
     this.alertRecordMapper = alertRecordMapper;
   }
 
@@ -68,12 +68,16 @@ public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, Alert
       alertSource = isGrafana ? AlertTypeInstant.ALERT_SOURCE_GRAFANA : AlertTypeInstant.ALERT_SOURCE_PROMETHEUS;
     }
     String alertName = alert.getLabels().get(AlertTypeInstant.ATTR_ALERTNAME);
-    LocalDateTime startTime = TimeUtils.parseToLocalDateTime(alert.getStartsAt());
+    LocalDateTime startTimePre = TimeUtils.parseToLocalDateTime(alert.getStartsAt());
+    assert startTimePre != null;
+    LocalDateTime startTime = startTimePre.plusHours(8);
     LocalDateTime endTime = null;
     String summary = alert.getAnnotations().get("summary");
     String description = alert.getAnnotations().get("description");
     if (AlertTypeInstant.ALERT_STATUS_RESOLVED.equalsIgnoreCase(alertStatus)) {
-      endTime = TimeUtils.parseToLocalDateTime(alert.getEndsAt());
+      LocalDateTime endTimePre = TimeUtils.parseToLocalDateTime(alert.getEndsAt());
+      assert endTimePre != null;
+      endTime = endTimePre.plusHours(8);
     }
 
     // 判断环境 env
@@ -210,10 +214,12 @@ public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, Alert
       alertRecord.setAlertName(alertName);
       alertRecord.setMonitorType(monitorType);
       alertRecord.setAlertStartTime(startTime);
-      alertRecord.setStatus("告警中");
+      alertRecord.setStatus(AlertTypeInstant.ALERT_STATUS_FIRING);
       alertRecord.setSummary(summary);
       alertRecord.setDescription(description);
       alertRecord.setEnv(env);
+      alertRecord.setTenantId(1L);
+
       alertRecordMapper.insert(alertRecord);
     } else if (AlertTypeInstant.ALERT_STATUS_RESOLVED.equalsIgnoreCase(alertStatus)) {
       if (Objects.isNull(alertRecordQuery)) {
@@ -223,7 +229,7 @@ public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, Alert
       updateWrapper.eq(AlertRecordDO::getId, alertRecordQuery.getId());
 
       alertRecordQuery.setAlertEndTime(endTime);
-      alertRecordQuery.setStatus("已恢复");
+      alertRecordQuery.setStatus(AlertTypeInstant.ALERT_STATUS_RESOLVED);
       alertRecordMapper.update(alertRecordQuery, updateWrapper);
     }
   }

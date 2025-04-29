@@ -160,7 +160,7 @@ public class OIDCServerController {
       }
 
       // 适配Archery
-      if (redirectUri.contains(":9123")) {
+      if (redirectUri.contains(":9123") && redirectUri.contains(".digiwin")) {
         redirectUri = redirectUri.replace(":9123", "").replace("http://", "https://");
       }
 
@@ -187,7 +187,7 @@ public class OIDCServerController {
                                                  @RequestParam(value = "client_secret", required = false) String clientSecret,
                                                  @RequestParam(value = "state", required = false) String state) {
     // NOTE 适配Archery
-    if (redirectUri.contains(":9123")) {
+    if (redirectUri.contains(":9123") && redirectUri.contains(".digiwin")) {
       redirectUri = redirectUri.replace(":9123", "").replace("http://", "https://");
     }
     try {

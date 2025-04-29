@@ -67,6 +67,7 @@ flowable:
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true # 虽然默认为 true ，但是还是显示去指定下。
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   global-config:
     db-config:
       id-type: NONE # “智能”模式，基于 IdTypeEnvironmentPostProcessor + 数据源的类型，自动适配成 AUTO、INPUT 模式。
@@ -286,6 +287,7 @@ yudao:
       - /admin-api/system/oauth2/** # OAuth2 接口，无法携带租户编号
       - /admin-api/system/oidc/** # OIDC 接口，无法携带租户编号
       - /admin-api/component-sso-proxy/**
+      - /admin-api/monitor/alert-record/receive # 接收告警
     ignore-tables:
       - system_tenant
       - system_tenant_package
