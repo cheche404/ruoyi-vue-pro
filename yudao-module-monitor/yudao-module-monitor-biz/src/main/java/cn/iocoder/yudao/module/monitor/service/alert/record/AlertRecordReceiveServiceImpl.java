@@ -106,6 +106,8 @@ public class AlertRecordReceiveServiceImpl extends ServiceImpl<AlertRecordMapper
           queryMap.putIfAbsent(AlertTypeInstant.ATTR_NODE, node);
           break;
         case AlertTypeInstant.MONITOR_TYPE_POD:
+        case AlertTypeInstant.MONITOR_TYPE_APP:
+        case AlertTypeInstant.MONITOR_TYPE_JVM:
           String namespace = alert.getLabels().get(AlertTypeInstant.MONITOR_TYPE_POD_NAMESPACE);
           String pod = alert.getLabels().get(AlertTypeInstant.MONITOR_TYPE_POD_POD);
           queryMap.putIfAbsent(AlertTypeInstant.MONITOR_TYPE_POD_NAMESPACE, namespace);
@@ -124,18 +126,6 @@ public class AlertRecordReceiveServiceImpl extends ServiceImpl<AlertRecordMapper
           queryMap.putIfAbsent(AlertTypeInstant.ATTR_NAME, name);
           queryMap.putIfAbsent(AlertTypeInstant.ATTR_TEAM, team);
           queryMap.putIfAbsent(AlertTypeInstant.ATTR_INSTANCE, instanceCheck);
-          break;
-        case AlertTypeInstant.MONITOR_TYPE_APP:
-          String namespaceApp = alert.getLabels().get(AlertTypeInstant.MONITOR_TYPE_POD_NAMESPACE);
-          String podApp = alert.getLabels().get(AlertTypeInstant.MONITOR_TYPE_POD_POD);
-          queryMap.putIfAbsent(AlertTypeInstant.MONITOR_TYPE_POD_NAMESPACE, namespaceApp);
-          queryMap.putIfAbsent(AlertTypeInstant.MONITOR_TYPE_POD_POD, podApp);
-          break;
-        case AlertTypeInstant.MONITOR_TYPE_JVM:
-          String namespaceJvm = alert.getLabels().get(AlertTypeInstant.MONITOR_TYPE_POD_NAMESPACE);
-          String podJvm = alert.getLabels().get(AlertTypeInstant.MONITOR_TYPE_POD_POD);
-          queryMap.putIfAbsent(AlertTypeInstant.MONITOR_TYPE_POD_NAMESPACE, namespaceJvm);
-          queryMap.putIfAbsent(AlertTypeInstant.MONITOR_TYPE_POD_POD, podJvm);
           break;
         default:
           break;
@@ -186,6 +176,8 @@ public class AlertRecordReceiveServiceImpl extends ServiceImpl<AlertRecordMapper
             alertRecord.setNode(queryMap.get(AlertTypeInstant.ATTR_NODE));
             break;
           case AlertTypeInstant.MONITOR_TYPE_POD:
+          case AlertTypeInstant.MONITOR_TYPE_JVM:
+          case AlertTypeInstant.MONITOR_TYPE_APP:
             alertRecord.setNamespace(queryMap.get(AlertTypeInstant.MONITOR_TYPE_POD_NAMESPACE));
             alertRecord.setPod(queryMap.get(AlertTypeInstant.MONITOR_TYPE_POD_POD));
             break;
@@ -197,14 +189,6 @@ public class AlertRecordReceiveServiceImpl extends ServiceImpl<AlertRecordMapper
             alertRecord.setName(queryMap.get(AlertTypeInstant.ATTR_NAME));
             alertRecord.setTeam(queryMap.get(AlertTypeInstant.ATTR_TEAM));
             alertRecord.setAbiOriginPrometheus(queryMap.get(AlertTypeInstant.ATTR_INSTANCE));
-            break;
-          case AlertTypeInstant.MONITOR_TYPE_APP:
-            alertRecord.setNamespace(queryMap.get(AlertTypeInstant.MONITOR_TYPE_POD_NAMESPACE));
-            alertRecord.setPod(queryMap.get(AlertTypeInstant.MONITOR_TYPE_POD_POD));
-            break;
-          case AlertTypeInstant.MONITOR_TYPE_JVM:
-            alertRecord.setNamespace(queryMap.get(AlertTypeInstant.MONITOR_TYPE_POD_NAMESPACE));
-            alertRecord.setPod(queryMap.get(AlertTypeInstant.MONITOR_TYPE_POD_POD));
             break;
           default:
             break;
