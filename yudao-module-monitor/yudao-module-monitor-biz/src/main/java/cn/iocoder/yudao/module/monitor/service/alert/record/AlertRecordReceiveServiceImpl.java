@@ -55,18 +55,21 @@ public class AlertRecordReceiveServiceImpl extends ServiceImpl<AlertRecordMapper
     String monitorType = "";
     String alertSource = "";
     String monitorTypeValue = alert.getLabels().get(AlertTypeInstant.ATTR_MONITOR_TYPE);
-    if (StringUtils.isNotBlank(monitorTypeValue)) {
-      boolean isGrafana = monitorTypeValue.contains(AlertTypeInstant.MONITOR_TYPE_GRAFANA);
-      if (isGrafana) {
-        String[] parts = monitorTypeValue.split("-");
-        if (parts.length > 1) {
-          monitorType = parts[1];
-        }
-      } else {
-        monitorType = monitorTypeValue;
-      }
-      alertSource = isGrafana ? AlertTypeInstant.ALERT_SOURCE_GRAFANA : AlertTypeInstant.ALERT_SOURCE_PROMETHEUS;
+    if (StringUtils.isBlank(monitorTypeValue)) {
+      return;
     }
+
+    boolean isGrafana = monitorTypeValue.contains(AlertTypeInstant.MONITOR_TYPE_GRAFANA);
+    if (isGrafana) {
+      String[] parts = monitorTypeValue.split("-");
+      if (parts.length > 1) {
+        monitorType = parts[1];
+      }
+    } else {
+      monitorType = monitorTypeValue;
+    }
+    alertSource = isGrafana ? AlertTypeInstant.ALERT_SOURCE_GRAFANA : AlertTypeInstant.ALERT_SOURCE_PROMETHEUS;
+
     String alertName = alert.getLabels().get(AlertTypeInstant.ATTR_ALERTNAME);
     LocalDateTime startTimePre = TimeUtils.parseToLocalDateTime(alert.getStartsAt());
     assert startTimePre != null;
@@ -188,7 +191,8 @@ public class AlertRecordReceiveServiceImpl extends ServiceImpl<AlertRecordMapper
           case AlertTypeInstant.MONITOR_TYPE_HEALTH_CHECK:
             alertRecord.setName(queryMap.get(AlertTypeInstant.ATTR_NAME));
             alertRecord.setTeam(queryMap.get(AlertTypeInstant.ATTR_TEAM));
-            alertRecord.setAbiOriginPrometheus(queryMap.get(AlertTypeInstant.ATTR_INSTANCE));
+            alertRecord.setInstance(queryMap.get(AlertTypeInstant.ATTR_INSTANCE));
+//            alertRecord.setAbiOriginPrometheus(queryMap.get(AlertTypeInstant.ATTR_INSTANCE));
             break;
           default:
             break;

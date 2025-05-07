@@ -200,8 +200,6 @@ public class OAuth2TokenServiceImpl implements OAuth2TokenService {
     private Map<String, String> buildUserInfo(Long userId, Integer userType) {
         if (userType.equals(UserTypeEnum.ADMIN.getValue())) {
             AdminUserDO user = adminUserService.getUser(userId);
-            System.out.println("=============buildUserInfo========userid=======" + userId);
-            System.out.println("=============buildUserInfo===============" + JsonUtils.toJsonString(user));
             return MapUtil.builder(LoginUser.INFO_KEY_NICKNAME, user.getNickname())
                     .put(LoginUser.INFO_KEY_DEPT_ID, StrUtil.toStringOrNull(user.getDeptId())).build();
         } else if (userType.equals(UserTypeEnum.MEMBER.getValue())) {
