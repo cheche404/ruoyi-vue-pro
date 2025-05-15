@@ -65,6 +65,8 @@ public class OIDCServerController {
   private AdminUserService adminUserService;
   @Resource
   private StringRedisTemplate stringRedisTemplate;
+  @Resource
+  private OAuth2ClientService oAuth2ClientService;
 
   private static final String ARCHERY_SSO_PREFIX = "archery_sso_";
 
@@ -258,17 +260,29 @@ public class OIDCServerController {
 
       Map<String, Object> userInfo = new HashMap<>();
       userInfo.put("sub", String.valueOf(user.getId()));
-
-      List<String> scopes = accessTokenDO.getScopes();
-      if (scopes.contains("profile")) {
-        userInfo.put("name", user.getNickname());
-        userInfo.put("preferred_username", user.getUsername());
-      }
-      if (scopes.contains("email")) {
+      OAuth2ClientDO client = oAuth2ClientService.getOAuth2ClientFromCache(accessTokenDO.getClientId());
+      if (client.getName().equalsIgnoreCase("jumpserver")) {
+        userInfo.put("preferred_username", user.getCn());
+        userInfo.put("name", user.getGivenName());
         userInfo.put("email", user.getEmail());
-        userInfo.put("email_verified", true);
+      } else if (client.getName().equalsIgnoreCase("rancher")) {
+        userInfo.put("preferred_username", user.getUsername());
+        userInfo.put("name", user.getDisplayName());
+        userInfo.put("email", user.getEmail());
+      } else if (client.getName().equalsIgnoreCase("archery")) {
+        userInfo.put("username", user.getUsername());
+        userInfo.put("display", user.getDisplayName());
+        userInfo.put("email", user.getEmail());
       }
-
+//      List<String> scopes = accessTokenDO.getScopes();
+//      if (scopes.contains("profile")) {
+//        userInfo.put("name", user.getNickname());
+//        userInfo.put("preferred_username", user.getUsername());
+//      }
+//      if (scopes.contains("email")) {
+//        userInfo.put("email", user.getEmail());
+//        userInfo.put("email_verified", true);
+//      }
       return userInfo;
     } catch (Exception e) {
       log.error("OIDC userinfo error", e);
@@ -322,10 +336,25 @@ public class OIDCServerController {
     if (StringUtils.isNotBlank(nonce)) {
       payload.put("nonce", nonce);
     }
-    // TODO 设配生产的LDAP登陆
-    payload.put("name", user.getNickname());
-    payload.put("preferred_username", user.getUsername());
+    // 设配生产的LDAP登陆
 
+    OAuth2ClientDO oAuth2ClientDO = oAuth2ClientService.getOAuth2ClientFromCache(client.getClientId());
+    if (oAuth2ClientDO.getName().equalsIgnoreCase("jumpserver")) {
+      payload.put("preferred_username", user.getCn());
+      payload.put("name", user.getGivenName());
+      payload.put("email", user.getEmail());
+    } else if (oAuth2ClientDO.getName().equalsIgnoreCase("rancher")) {
+      payload.put("preferred_username", user.getUsername());
+      payload.put("name", user.getDisplayName());
+      payload.put("email", user.getEmail());
+    } else if (oAuth2ClientDO.getName().equalsIgnoreCase("archery")) {
+      payload.put("username", user.getUsername());
+      payload.put("display", user.getDisplayName());
+      payload.put("email", user.getEmail());
+    }
+
+//    payload.put("name", user.getNickname());
+//    payload.put("preferred_username", user.getUsername());
     // Jumpserver 适配 LDAP 登陆
 //    payload.put("name", "東陽");
 //    payload.put("preferred_username", "付东阳fudy");

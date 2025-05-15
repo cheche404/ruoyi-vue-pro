@@ -47,22 +47,33 @@ public class AdminUserDO extends TenantBaseDO {
      * 用户昵称
      */
     private String nickname;
-//    /**
-//     * displayname
-//     */
-//    private String displayname;
-//    /**
-//     * givenname
-//     */
-//    private String givenname;
-//    /**
-//     * sn
-//     */
-//    private String sn;
-//    /**
-//     * cn
-//     */
-//    private String cn;
+
+    /**
+     * cn
+     */
+    private String cn;
+    /**
+     * sn
+     */
+    private String sn;
+    /**
+     * displayName
+     */
+    private String displayName;
+    /**
+     * userPrincipalName
+     */
+    private String userPrincipalName;
+    /**
+     * givenName
+     */
+    private String givenName;
+
+    /**
+     * userType
+     */
+    private String userType;
+
     /**
      * 备注
      */

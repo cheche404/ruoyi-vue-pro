@@ -1,9 +1,9 @@
 package cn.iocoder.yudao.module.system.dal.dataobject.ldap;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.springframework.ldap.odm.annotations.Attribute;
 import org.springframework.ldap.odm.annotations.Entry;
+import org.springframework.ldap.odm.annotations.Id;
 
 import javax.naming.Name;
 
@@ -12,52 +12,49 @@ import javax.naming.Name;
  * @date 2025/3/26
  */
 @Data
-@Entry(base = "ou=users ", objectClasses = "inetOrgPerson")
+@Entry(objectClasses = {"top", "person", "organizationalPerson", "user"})
 public class DigiwinLdapPerson {
 
-  private static final long serialVersionUID = 1L;
-
-  @org.springframework.ldap.odm.annotations.Id
-  @JsonIgnore
+  @Id
   private Name dn;
-
-  @Attribute(name = "mail")
-  private String mail;
-
-  @Attribute(name = "name")
-  private String name;
-
-  @Attribute(name = "description")
-  private String description;
-
-  @Attribute(name = "sn")
-  private String sn;
 
   @Attribute(name = "cn")
   private String cn;
 
-  @Attribute(name = "title")
-  private String title;
-
-  @Attribute(name = "mobile")
-  private String mobile;
-
-  @Attribute(name = "givenName")
-  private String givenName;
+  @Attribute(name = "sn")
+  private String sn;
 
   @Attribute(name = "sAMAccountName")
-  private String sAMAccountName;
+  private String username;
 
-  @Attribute(name = "displayName")
-  private String displayName;
+  @Attribute(name = "name")
+  private String name;
 
   @Attribute(name = "userPrincipalName")
   private String userPrincipalName;
 
+  @Attribute(name = "givenName")
+  private String givenName;
+
+  @Attribute(name = "displayName")
+  private String displayName;
+
+  @Attribute(name = "mail")
+  private String email;
+
+  @Attribute(name = "mobile")
+  private String mobile;
+
   @Attribute(name = "department")
   private String department;
 
-  @Attribute(name = "distinguishedName")
-  private String distinguishedName;
+  @Attribute(name = "title")
+  private String title;
+
+  @Attribute(name = "description")
+  private String description;
+
+  @Attribute(name = "memberOf")
+  private String[] memberOf;
 
 }

@@ -283,7 +283,7 @@ sso:
 
 spring:
   ldap:
-    urls: ldap://172.31.0.6:389
-    base: dc=example,dc=com
-    username: cn=admin,dc=example,dc=com
-    password: adminpassword
+    urls: ldap://47.103.40.137:389
+    base: OU=Account,OU=DIGIWIN,DC=digiwin,DC=com
+    username: CN=DAP平台中心公告,OU=D8部門產品,OU=公用對內,OU=Account,OU=DIGIWIN,DC=digiwin,DC=com
+    password: DAPvul3gp3

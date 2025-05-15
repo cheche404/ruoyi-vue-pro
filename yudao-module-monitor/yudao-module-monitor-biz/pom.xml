@@ -125,11 +125,6 @@
       <groupId>com.xingyuv</groupId>
       <artifactId>spring-boot-starter-captcha-plus</artifactId> <!-- 验证码，一般用于登录使用 -->
     </dependency>
-
-    <dependency>
-      <groupId>org.springframework.ldap</groupId>
-      <artifactId>spring-ldap-core</artifactId>
-    </dependency>
   </dependencies>
 
 </project>

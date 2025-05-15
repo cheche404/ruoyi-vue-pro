@@ -13,7 +13,7 @@ import javax.naming.Name;
  * @date 2025/3/26
  */
 @Data
-@Entry(base = "ou=users ", objectClasses = "inetOrgPerson")
+@Entry(base = "ou=users", objectClasses = "inetOrgPerson")
 public class LdapPerson {
 
   private static final long serialVersionUID = 1L;

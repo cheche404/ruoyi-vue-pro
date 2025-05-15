@@ -16,14 +16,19 @@ import cn.iocoder.yudao.module.system.api.social.dto.SocialUserBindReqDTO;
 import cn.iocoder.yudao.module.system.api.social.dto.SocialUserRespDTO;
 import cn.iocoder.yudao.module.system.controller.admin.auth.vo.*;
 import cn.iocoder.yudao.module.system.convert.auth.AuthConvert;
+import cn.iocoder.yudao.module.system.dal.dataobject.dept.DeptDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.ldap.DigiwinLdapPerson;
 import cn.iocoder.yudao.module.system.dal.dataobject.ldap.LdapPerson;
 import cn.iocoder.yudao.module.system.dal.dataobject.oauth2.OAuth2AccessTokenDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.user.AdminUserDO;
+import cn.iocoder.yudao.module.system.dal.mysql.dept.DeptMapper;
+import cn.iocoder.yudao.module.system.dal.mysql.user.AdminUserMapper;
+import cn.iocoder.yudao.module.system.enums.ldap.LdapConstants;
 import cn.iocoder.yudao.module.system.enums.logger.LoginLogTypeEnum;
 import cn.iocoder.yudao.module.system.enums.logger.LoginResultEnum;
 import cn.iocoder.yudao.module.system.enums.oauth2.OAuth2ClientConstants;
 import cn.iocoder.yudao.module.system.enums.sms.SmsSceneEnum;
+import cn.iocoder.yudao.module.system.service.ldap.LdapService;
 import cn.iocoder.yudao.module.system.service.logger.LoginLogService;
 import cn.iocoder.yudao.module.system.service.member.MemberService;
 import cn.iocoder.yudao.module.system.service.oauth2.OAuth2TokenService;
@@ -33,11 +38,14 @@ import com.google.common.annotations.VisibleForTesting;
 import com.xingyuv.captcha.model.common.ResponseModel;
 import com.xingyuv.captcha.model.vo.CaptchaVO;
 import com.xingyuv.captcha.service.CaptchaService;
+import com.xingyuv.captcha.util.StringUtils;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.ldap.filter.AndFilter;
+import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.ldap.query.LdapQuery;
 import org.springframework.ldap.query.LdapQueryBuilder;
 import org.springframework.security.core.AuthenticationException;
@@ -48,6 +56,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import javax.validation.Validator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -84,6 +93,12 @@ public class AdminAuthServiceImpl implements AdminAuthService {
     private LdapTemplate ldapTemplate;
     @Resource
     private PasswordEncoder passwordEncoder;
+    @Resource
+    private LdapService ldapService;
+    @Resource
+    private DeptMapper deptMapper;
+    @Resource
+    private AdminUserMapper adminUserMapper;
 
     /**
      * 验证码的开关，默认为 true
@@ -104,9 +119,19 @@ public class AdminAuthServiceImpl implements AdminAuthService {
             createLoginLog(null, username, logTypeEnum, LoginResultEnum.BAD_CREDENTIALS);
             throw exception(USER_NOT_EXISTS);
         }
-        if (!userService.isPasswordMatch(password, user.getPassword())) {
-            createLoginLog(user.getId(), username, logTypeEnum, LoginResultEnum.BAD_CREDENTIALS);
-            throw exception(AUTH_LOGIN_BAD_CREDENTIALS);
+        if (LdapConstants.USER_TYPE_LDAP.equalsIgnoreCase(user.getUserType())) {
+            AndFilter filter = new AndFilter();
+            filter.and(new EqualsFilter(LdapConstants.LDAP_SAMACCOUNTNAME, username));
+            boolean authResult = ldapTemplate.authenticate("", filter.toString(), password);
+            if (!authResult) {
+                createLoginLog(user.getId(), username, logTypeEnum, LoginResultEnum.BAD_CREDENTIALS);
+                throw exception(AUTH_LOGIN_BAD_CREDENTIALS);
+            }
+        } else {
+            if (!userService.isPasswordMatch(password, user.getPassword())) {
+                createLoginLog(user.getId(), username, logTypeEnum, LoginResultEnum.BAD_CREDENTIALS);
+                throw exception(AUTH_LOGIN_BAD_CREDENTIALS);
+            }
         }
         // 校验是否禁用
         if (CommonStatusEnum.isDisable(user.getStatus())) {
@@ -118,39 +143,64 @@ public class AdminAuthServiceImpl implements AdminAuthService {
 
     private void ldapValidate(String username, String password) {
         try {
-            // 根据环境选择 baseDN 和查询字段
-            String baseDn;
-            String queryField;
-            Class<?> personClass;
-            Function<Object, AdminUserDO> userBuilder;
-
             if ("test".equalsIgnoreCase(springProfilesActive) || "prod".equalsIgnoreCase(springProfilesActive)) {
-                baseDn = "DC=digiwin,DC=com";
-                queryField = "sAMAccountName";
-                personClass = DigiwinLdapPerson.class;
-                userBuilder = (person) -> buildDigiwinSysUser((DigiwinLdapPerson) person, username, password);
+                AndFilter filter = new AndFilter();
+                filter.and(new EqualsFilter(LdapConstants.LDAP_SAMACCOUNTNAME, username));
+                boolean authResult = ldapTemplate.authenticate("", filter.toString(), password);
+                if (!authResult) {
+                    createLoginLog(0L, username, LoginLogTypeEnum.LOGIN_USERNAME, LoginResultEnum.BAD_CREDENTIALS);
+                    throw exception(AUTH_LOGIN_BAD_CREDENTIALS);
+                }
+                DigiwinLdapPerson person = ldapService.findByUsername(username);
+                if (Objects.isNull(person)) {
+                    throw new EmptyResultDataAccessException("LDAP 返回用户信息为空", 1);
+                }
+                // 注册用户
+                if (StringUtils.isBlank(person.getDepartment())) {
+                    person.setDepartment(LdapConstants.OTHER_DEPT_NAME);
+                }
+                AdminUserDO userDO = new AdminUserDO();
+                userDO.setCn(person.getCn());
+                userDO.setNickname(person.getCn());
+                userDO.setSn(person.getSn());
+                userDO.setUsername(person.getUsername());
+                userDO.setUserPrincipalName(person.getUserPrincipalName());
+                userDO.setEmail(person.getEmail());
+                userDO.setMobile(person.getMobile());
+                userDO.setDisplayName(person.getDisplayName());
+                userDO.setGivenName(person.getGivenName());
+                userDO.setDeleted(false);
+                userDO.setUserType(LdapConstants.USER_TYPE_LDAP);
+                userDO.setTenantId(1L);
+                // 处理部门
+                String[] parts = person.getDepartment().split("\\.");
+                // TODO 层级中存在相同的部门名称
+                String lastPart = parts[parts.length - 1];
+                DeptDO deptDO = deptMapper.selectOne("name", lastPart);
+                Long deptId = deptDO.getId();
+                userDO.setDeptId(deptId);
+                adminUserMapper.insert(userDO);
             } else {
-                baseDn = "ou=users";
-                queryField = "uid";
-                personClass = LdapPerson.class;
-                userBuilder = (person) -> buildSysUser((LdapPerson) person, username, password);
-            }
+                String baseDn = "ou=users";
+                String queryField = "uid";
+                Class<?> personClass = LdapPerson.class;
+                Function<Object, AdminUserDO> userBuilder = (person) -> buildSysUser((LdapPerson) person, username, password);
+                // 构建 LDAP 查询
+                LdapQuery query = LdapQueryBuilder.query()
+                  .base(baseDn)
+                  .where(queryField).is(username);
 
-            // 构建 LDAP 查询
-            LdapQuery query = LdapQueryBuilder.query()
-              .base(baseDn)
-              .where(queryField).is(username);
-
-            // 执行认证
-            ldapTemplate.authenticate(query, password);
-            // 获取用户信息
-            Object person = ldapTemplate.findOne(query, personClass);
-            if (person == null) {
-                throw new EmptyResultDataAccessException("LDAP 返回用户信息为空", 1);
+                // 执行认证
+                ldapTemplate.authenticate(query, password);
+                // 获取用户信息
+                Object person = ldapTemplate.findOne(query, personClass);
+                if (Objects.isNull(person)) {
+                    throw new EmptyResultDataAccessException("LDAP 返回用户信息为空", 1);
+                }
+                // 注册用户
+                AdminUserDO adminUserDO = userBuilder.apply(person);
+                registerUser(adminUserDO);
             }
-            // 注册用户
-            AdminUserDO adminUserDO = userBuilder.apply(person);
-            registerUser(adminUserDO);
         } catch (AuthenticationException e) {
             throw new ServiceException(GlobalErrorCodeConstants.LDAP_USER_PASSWORD_ERROR);
         } catch (EmptyResultDataAccessException e) {
@@ -194,9 +244,7 @@ public class AdminAuthServiceImpl implements AdminAuthService {
     private AdminUserDO buildDigiwinSysUser(DigiwinLdapPerson person, String username, String password) {
         AdminUserDO adminUserDO = new AdminUserDO();
         adminUserDO.setUsername(username);
-        adminUserDO.setNickname(person.getSn());
         adminUserDO.setPassword(passwordEncoder.encode(password));
-        adminUserDO.setEmail(person.getMail());
         adminUserDO.setMobile(person.getMobile());
         adminUserDO.setCreator("ldap");
         HashSet<Long> postIdSet = new HashSet<>();
@@ -216,24 +264,12 @@ public class AdminAuthServiceImpl implements AdminAuthService {
         return adminUserDO;
     }
 
-    /**
-     * 注册用户到系统
-     */
-    private void registerUser(AdminUserDO adminUserDO) {
-        Long result = userService.insertUser(adminUserDO);
-        if (result == 0) {
-            throw new ServiceException(new ErrorCode(222, "注册失败，请联系系统管理员"));
-        }
-    }
-
     @Override
     public AuthLoginRespVO login(AuthLoginReqVO reqVO) {
         // 校验验证码
         validateCaptcha(reqVO);
-
         // 使用账号密码，进行登录
         AdminUserDO user = null;
-
         try {
             user = authenticate(reqVO.getUsername(), reqVO.getPassword());
         } catch (ServiceException e) {
@@ -253,6 +289,16 @@ public class AdminAuthServiceImpl implements AdminAuthService {
         }
         // 创建 Token 令牌，记录登录日志
         return createTokenAfterLoginSuccess(user.getId(), reqVO.getUsername(), LoginLogTypeEnum.LOGIN_USERNAME);
+    }
+
+    /**
+     * 注册用户到系统
+     */
+    private void registerUser(AdminUserDO adminUserDO) {
+        Long result = userService.insertUser(adminUserDO);
+        if (result == 0) {
+            throw new ServiceException(new ErrorCode(222, "注册失败，请联系系统管理员"));
+        }
     }
 
     @Override
