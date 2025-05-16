@@ -270,9 +270,13 @@ public class OIDCServerController {
         userInfo.put("name", user.getDisplayName());
         userInfo.put("email", user.getEmail());
       } else if (client.getName().equalsIgnoreCase("archery")) {
-        userInfo.put("username", user.getUsername());
-        userInfo.put("display", user.getDisplayName());
+//        userInfo.put("username", user.getUsername());
+//        userInfo.put("display", user.getDisplayName());
+//        userInfo.put("email", user.getEmail());
+
+        userInfo.put("name", user.getDisplayName());
         userInfo.put("email", user.getEmail());
+        userInfo.put("preferred_username", user.getUsername());
       }
 //      List<String> scopes = accessTokenDO.getScopes();
 //      if (scopes.contains("profile")) {
@@ -348,9 +352,12 @@ public class OIDCServerController {
       payload.put("name", user.getDisplayName());
       payload.put("email", user.getEmail());
     } else if (oAuth2ClientDO.getName().equalsIgnoreCase("archery")) {
-      payload.put("username", user.getUsername());
-      payload.put("display", user.getDisplayName());
-      payload.put("email", user.getEmail());
+//      payload.put("username", user.getUsername());
+//      payload.put("display", user.getDisplayName());
+//      payload.put("email", user.getEmail());
+        payload.put("name", user.getDisplayName());
+        payload.put("email", user.getEmail());
+        payload.put("preferred_username", user.getUsername());
     }
 
 //    payload.put("name", user.getNickname());
