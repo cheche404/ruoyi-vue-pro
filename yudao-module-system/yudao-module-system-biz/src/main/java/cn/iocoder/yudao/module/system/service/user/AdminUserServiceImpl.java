@@ -103,6 +103,12 @@ public class AdminUserServiceImpl implements AdminUserService {
         AdminUserDO user = BeanUtils.toBean(createReqVO, AdminUserDO.class);
         user.setStatus(CommonStatusEnum.ENABLE.getStatus()); // 默认开启
         user.setPassword(encodePassword(createReqVO.getPassword())); // 加密密码
+        // 新增几个信息
+        user.setSn(user.getNickname());
+        user.setCn(user.getUsername());
+        user.setDisplayName(user.getNickname());
+        user.setUserPrincipalName(user.getEmail());
+        user.setGivenName(user.getNickname());
         userMapper.insert(user);
         // 2.2 插入关联岗位
         if (CollectionUtil.isNotEmpty(user.getPostIds())) {
@@ -154,6 +160,11 @@ public class AdminUserServiceImpl implements AdminUserService {
 
         // 2.1 更新用户
         AdminUserDO updateObj = BeanUtils.toBean(updateReqVO, AdminUserDO.class);
+        updateObj.setSn(updateObj.getNickname());
+        updateObj.setCn(updateObj.getUsername());
+        updateObj.setDisplayName(updateObj.getNickname());
+        updateObj.setUserPrincipalName(updateObj.getEmail());
+        updateObj.setGivenName(updateObj.getNickname());
         userMapper.updateById(updateObj);
         // 2.2 更新岗位
         updateUserPost(updateReqVO, updateObj);
