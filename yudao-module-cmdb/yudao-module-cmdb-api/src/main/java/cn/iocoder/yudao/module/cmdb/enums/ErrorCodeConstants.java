@@ -34,4 +34,9 @@ public interface ErrorCodeConstants {
     ErrorCode MONGODB_NOT_EXISTS = new ErrorCode(1_001_006_000, "MongoDB不存在");
     ErrorCode MONGODB_IMPORT_LIST_IS_EMPTY = new ErrorCode(1_001_006_001, "导入MongoDB列表为空");
     ErrorCode MONGODB_INSTANCE_NAME_EXISTS = new ErrorCode(1_001_006_002, "MongoDB instanceName 已经存在");
+
+    // ========== CMDB Mq 模块 1_001_007_000 ===========
+    ErrorCode MQ_NOT_EXISTS = new ErrorCode(1_001_007_000, "Mq不存在");
+    ErrorCode MQ_IMPORT_LIST_IS_EMPTY = new ErrorCode(1_001_007_001, "导入Mq列表为空");
+    ErrorCode MQ_CLUSTER_NAME_EXISTS = new ErrorCode(1_001_007_002, "Mq clusterName 已经存在");
 }
