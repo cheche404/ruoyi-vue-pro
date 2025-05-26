@@ -1,14 +1,11 @@
 package cn.iocoder.yudao.module.cmdb.dal.mysql.mongodb;
 
-import java.util.*;
-
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
-import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.iocoder.yudao.framework.mybatis.core.mapper.BaseMapperX;
+import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
+import cn.iocoder.yudao.module.cmdb.controller.admin.mongodb.vo.MongodbPageReqVO;
 import cn.iocoder.yudao.module.cmdb.dal.dataobject.mongodb.MongodbDO;
-import cn.iocoder.yudao.module.cmdb.dal.dataobject.mysql.MysqlDO;
 import org.apache.ibatis.annotations.Mapper;
-import cn.iocoder.yudao.module.cmdb.controller.admin.mongodb.vo.*;
 
 /**
  * CMDB-MongoDB Mapper

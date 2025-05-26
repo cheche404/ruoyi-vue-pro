@@ -62,7 +62,7 @@ public class MqServiceImpl implements MqService {
 
     private void validateMqExists(Long id) {
         if (mqMapper.selectById(id) == null) {
-            throw exception(MQ_NOT_EXISTS);
+            throw exception(ErrorCodeConstants.MQ_NOT_EXISTS);
         }
     }
 

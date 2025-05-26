@@ -1,8 +1,6 @@
 package cn.iocoder.yudao.module.cmdb.service.redis;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
-import cn.iocoder.yudao.module.cmdb.controller.admin.mysql.vo.MysqlImportExcelVO;
-import cn.iocoder.yudao.module.cmdb.controller.admin.mysql.vo.MysqlImportRespVO;
 import cn.iocoder.yudao.module.cmdb.controller.admin.redis.vo.RedisImportExcelVO;
 import cn.iocoder.yudao.module.cmdb.controller.admin.redis.vo.RedisImportRespVO;
 import cn.iocoder.yudao.module.cmdb.controller.admin.redis.vo.RedisPageReqVO;

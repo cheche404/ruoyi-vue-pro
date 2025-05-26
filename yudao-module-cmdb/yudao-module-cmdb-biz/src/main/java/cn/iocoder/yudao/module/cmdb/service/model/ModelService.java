@@ -1,11 +1,13 @@
 package cn.iocoder.yudao.module.cmdb.service.model;
 
-import java.util.*;
-import javax.validation.*;
-import cn.iocoder.yudao.module.cmdb.controller.admin.model.vo.*;
-import cn.iocoder.yudao.module.cmdb.dal.dataobject.model.ModelDO;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
-import cn.iocoder.yudao.framework.common.pojo.PageParam;
+import cn.iocoder.yudao.module.cmdb.controller.admin.model.vo.ModelListReqVO;
+import cn.iocoder.yudao.module.cmdb.controller.admin.model.vo.ModelPageReqVO;
+import cn.iocoder.yudao.module.cmdb.controller.admin.model.vo.ModelSaveReqVO;
+import cn.iocoder.yudao.module.cmdb.dal.dataobject.model.ModelDO;
+
+import javax.validation.Valid;
+import java.util.List;
 
 /**
  * CMDB模型 Service 接口

@@ -98,7 +98,7 @@ public class MongodbServiceImpl implements MongodbService {
             // 2.2.1 如果存在，判断是否允许更新
             if (!isUpdateSupport) {
                 respVO.getFailureInstanceNames().put(importMongodb.getInstanceName(),
-                  ErrorCodeConstants.MYSQL_INSTANCE_NAME_EXISTS.getMsg());
+                  ErrorCodeConstants.MONGODB_INSTANCE_NAME_EXISTS.getMsg());
                 return;
             }
             MongodbDO updateMongodb = BeanUtils.toBean(importMongodb, MongodbDO.class);
