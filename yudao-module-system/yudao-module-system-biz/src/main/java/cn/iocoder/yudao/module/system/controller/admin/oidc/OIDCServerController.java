@@ -46,7 +46,7 @@ import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUti
  *
  * 提供符合 OIDC 规范的接口，实现单点登录(SSO)
  *
- * @author 您的名字
+ * @author fudy
  */
 @Tag(name = "管理后台 - OpenID Connect 认证")
 @RestController
@@ -274,7 +274,7 @@ public class OIDCServerController {
 //        userInfo.put("display", user.getDisplayName());
 //        userInfo.put("email", user.getEmail());
 
-        userInfo.put("name", user.getDisplayName());
+        userInfo.put("name", user.getCn());
         userInfo.put("email", user.getEmail());
         userInfo.put("preferred_username", user.getUsername());
       }

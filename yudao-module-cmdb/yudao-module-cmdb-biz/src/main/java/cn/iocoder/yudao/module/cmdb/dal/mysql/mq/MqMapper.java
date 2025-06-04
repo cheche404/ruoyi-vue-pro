@@ -16,29 +16,29 @@ import org.apache.ibatis.annotations.Mapper;
 public interface MqMapper extends BaseMapperX<MqDO> {
 
     default MqDO selectByCondition(String clusterName, String cloudArea, String host) {
-        return selectOne(MqDO::getClusterName, clusterName,
-          MqDO::getCloudArea, cloudArea, MqDO::getHost, host);
+      return selectOne(MqDO::getClusterName, clusterName,
+        MqDO::getCloudArea, cloudArea, MqDO::getHost, host);
     }
 
     default PageResult<MqDO> selectPage(MqPageReqVO reqVO) {
-        return selectPage(reqVO, new LambdaQueryWrapperX<MqDO>()
-                .eqIfPresent(MqDO::getCloudArea, reqVO.getCloudArea())
-                .eqIfPresent(MqDO::getEnv, reqVO.getEnv())
-                .eqIfPresent(MqDO::getCenter, reqVO.getCenter())
-                .eqIfPresent(MqDO::getTeam, reqVO.getTeam())
-                .eqIfPresent(MqDO::getUser, reqVO.getUser())
-                .eqIfPresent(MqDO::getPromoter, reqVO.getPromoter())
-                .eqIfPresent(MqDO::getHost, reqVO.getHost())
-                .eqIfPresent(MqDO::getDocker, reqVO.getDocker())
-                .eqIfPresent(MqDO::getNodes, reqVO.getNodes())
-                .likeIfPresent(MqDO::getClusterName, reqVO.getClusterName())
-                .eqIfPresent(MqDO::getLocation, reqVO.getLocation())
-                .eqIfPresent(MqDO::getNotesInfo, reqVO.getNotesInfo())
-                .eqIfPresent(MqDO::getExporterIp, reqVO.getExporterIp())
-                .eqIfPresent(MqDO::getExporterPort, reqVO.getExporterPort())
-                .eqIfPresent(MqDO::getMonitored, reqVO.getMonitored())
-                .betweenIfPresent(MqDO::getCreateTime, reqVO.getCreateTime())
-                .orderByDesc(MqDO::getId));
+      return selectPage(reqVO, new LambdaQueryWrapperX<MqDO>()
+        .likeIfPresent(MqDO::getCloudArea, reqVO.getCloudArea())
+        .likeIfPresent(MqDO::getEnv, reqVO.getEnv())
+        .likeIfPresent(MqDO::getCenter, reqVO.getCenter())
+        .likeIfPresent(MqDO::getTeam, reqVO.getTeam())
+        .likeIfPresent(MqDO::getUser, reqVO.getUser())
+        .likeIfPresent(MqDO::getPromoter, reqVO.getPromoter())
+        .likeIfPresent(MqDO::getHost, reqVO.getHost())
+        .likeIfPresent(MqDO::getDocker, reqVO.getDocker())
+        .likeIfPresent(MqDO::getNodes, reqVO.getNodes())
+        .likeIfPresent(MqDO::getClusterName, reqVO.getClusterName())
+        .eqIfPresent(MqDO::getLocation, reqVO.getLocation())
+        .likeIfPresent(MqDO::getNotesInfo, reqVO.getNotesInfo())
+        .likeIfPresent(MqDO::getExporterIp, reqVO.getExporterIp())
+        .likeIfPresent(MqDO::getExporterPort, reqVO.getExporterPort())
+        .eqIfPresent(MqDO::getMonitored, reqVO.getMonitored())
+        .betweenIfPresent(MqDO::getCreateTime, reqVO.getCreateTime())
+        .orderByDesc(MqDO::getId));
     }
 
 }

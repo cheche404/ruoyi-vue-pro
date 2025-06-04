@@ -184,8 +184,8 @@ CREATE TABLE `cmdb_mongodb` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='CMDB-MongoDB表';
 
-DROP TABLE IF EXISTS `cmdb_mq`;
-CREATE TABLE `cmdb_mq` (
+DROP TABLE IF EXISTS `cmdb_rabbitmq`;
+CREATE TABLE `cmdb_rabbitmq` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'MQ实例-ID',
   `cloud_area` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '云区域',
   `env` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '环境',
@@ -213,4 +213,49 @@ CREATE TABLE `cmdb_mq` (
 
 ALTER TABLE cmdb_redis MODIFY COLUMN exporter_ip varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' NULL COMMENT 'exporter-ip';
 ALTER TABLE cmdb_mongodb MODIFY COLUMN node_info varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' NULL COMMENT '主机信息';
+
+DROP TABLE IF EXISTS `cmdb_namespace`;
+CREATE TABLE `cmdb_namespace` (
+   `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'namespace实例-ID',
+   `cloud_area` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '云区域',
+   `env` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '环境',
+   `center` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '数据中心',
+   `team` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '团队',
+   `namespace` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '命名空间',
+   `deployment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '控制器',
+   `replicas` int DEFAULT NULL COMMENT '副本数',
+   `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '创建者',
+   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+   `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '更新者',
+   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+   `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+   `tenant_id` bigint NOT NULL DEFAULT 1 COMMENT '租户编号',
+   PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='CMDB-namespace表';
+
+ALTER TABLE `cmdb_host` ADD COLUMN `delete_time` datetime DEFAULT NULL COMMENT '删除时间';
+ALTER TABLE `cmdb_mysql` ADD COLUMN `delete_time` datetime DEFAULT NULL COMMENT '删除时间';
+ALTER TABLE `cmdb_redis` ADD COLUMN `delete_time` datetime DEFAULT NULL COMMENT '删除时间';
+ALTER TABLE `cmdb_mongodb` ADD COLUMN `delete_time` datetime DEFAULT NULL COMMENT '删除时间';
+ALTER TABLE `cmdb_rabbitmq` ADD COLUMN `delete_time` datetime DEFAULT NULL COMMENT '删除时间';
+ALTER TABLE `cmdb_namespace` ADD COLUMN `delete_time` datetime DEFAULT NULL COMMENT '删除时间';
+
+ALTER TABLE `cmdb_host` MODIFY COLUMN `tenant_id` bigint NOT NULL DEFAULT 1 COMMENT '租户编号';
+ALTER TABLE `cmdb_mysql` MODIFY COLUMN `tenant_id` bigint NOT NULL DEFAULT 1 COMMENT '租户编号';
+ALTER TABLE `cmdb_mongodb` MODIFY COLUMN `tenant_id` bigint NOT NULL DEFAULT 1 COMMENT '租户编号';
+ALTER TABLE `cmdb_redis` MODIFY COLUMN `tenant_id` bigint NOT NULL DEFAULT 1 COMMENT '租户编号';
+ALTER TABLE `cmdb_rabbitmq` MODIFY COLUMN `tenant_id` bigint NOT NULL DEFAULT 1 COMMENT '租户编号';
+ALTER TABLE `cmdb_namespace` MODIFY COLUMN `tenant_id` bigint NOT NULL DEFAULT 1 COMMENT '租户编号';
+
+UPDATE `cmdb_host` SET `exporter_port` = NULL WHERE `exporter_port` = '';
+UPDATE `cmdb_mysql` SET `exporter_port` = NULL WHERE `exporter_port` = '';
+UPDATE `cmdb_mongodb` SET `exporter_port` = NULL WHERE `exporter_port` = '';
+UPDATE `cmdb_redis` SET `exporter_port` = NULL WHERE `exporter_port` = '';
+UPDATE `cmdb_rabbitmq` SET `exporter_port` = NULL WHERE `exporter_port` = '';
+
+ALTER TABLE `cmdb_host` MODIFY COLUMN `exporter_port` int DEFAULT NULL COMMENT 'exporter端口';
+ALTER TABLE `cmdb_mysql` MODIFY COLUMN `exporter_port` int DEFAULT NULL COMMENT 'exporter端口';
+ALTER TABLE `cmdb_mongodb` MODIFY COLUMN `exporter_port` int DEFAULT NULL COMMENT 'exporter端口';
+ALTER TABLE `cmdb_redis` MODIFY COLUMN `exporter_port` int DEFAULT NULL COMMENT 'exporter端口';
+ALTER TABLE `cmdb_rabbitmq` MODIFY COLUMN `exporter_port` int DEFAULT NULL COMMENT 'exporter端口';
 

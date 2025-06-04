@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.apilog.core.enums.OperateTypeEnum.EXPORT;
+import static cn.iocoder.yudao.framework.apilog.core.enums.OperateTypeEnum.IMPORT;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 
 @Tag(name = "管理后台 - CMDB-Redis")

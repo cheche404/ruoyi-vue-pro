@@ -11,8 +11,8 @@ import lombok.*;
  *
  * @author admin
  */
-@TableName("cmdb_mq")
-@KeySequence("cmdb_mq_seq") // 用于 Oracle、PostgreSQL、Kingbase、DB2、H2 数据库的主键自增。如果是 MySQL 等数据库，可不写。
+@TableName("cmdb_rabbitmq")
+@KeySequence("cmdb_rabbitmq_seq") // 用于 Oracle、PostgreSQL、Kingbase、DB2、H2 数据库的主键自增。如果是 MySQL 等数据库，可不写。
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)

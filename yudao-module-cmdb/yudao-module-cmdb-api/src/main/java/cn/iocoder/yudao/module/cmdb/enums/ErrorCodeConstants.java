@@ -39,4 +39,9 @@ public interface ErrorCodeConstants {
     ErrorCode MQ_NOT_EXISTS = new ErrorCode(1_001_007_000, "Mq不存在");
     ErrorCode MQ_IMPORT_LIST_IS_EMPTY = new ErrorCode(1_001_007_001, "导入Mq列表为空");
     ErrorCode MQ_CLUSTER_NAME_EXISTS = new ErrorCode(1_001_007_002, "Mq clusterName 已经存在");
+
+    // ========== CMDB Namespace 模块 1_001_008_000 ===========
+    ErrorCode NAMESPACE_NOT_EXISTS = new ErrorCode(1_001_008_000, "Namespace不存在");
+    ErrorCode NAMESPACE_IMPORT_LIST_IS_EMPTY = new ErrorCode(1_001_008_001, "导入Namespace列表为空");
+    ErrorCode NAMESPACE_CLUSTER_NAME_EXISTS = new ErrorCode(1_001_008_002, "Namespace 已经存在");
 }
