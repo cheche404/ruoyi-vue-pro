@@ -98,17 +98,17 @@ public class MqController {
         List<MqImportExcelVO> list = Arrays.asList(
           MqImportExcelVO.builder().cloudArea("aliyun").env("paas").center("").team("").user("").promoter("")
             .host("mq-paas.digiwincloud.com.cn").docker("N").nodes("192.168.9.208").clusterName("阿里云paas-mq")
-            .location("Y").notesInfo("阿里云paas-mq")
+            .location("Y").notesInfo("阿里云paas-mq").offline("N")
             .exporterIp("192.168.1.14").exporterPort("9421").monitored("Y").build(),
 
           MqImportExcelVO.builder().cloudArea("azure").env("prod").center("").team("").user("").promoter("")
             .host("mq.digiwincloud.com").docker("N").nodes("192.168.0.100").clusterName("微软云生产mq")
-            .location("Y").notesInfo("微软云生产mq")
+            .location("Y").notesInfo("微软云生产mq").offline("N")
             .exporterIp("192.168.5.28").exporterPort("9420").monitored("Y").build(),
 
           MqImportExcelVO.builder().cloudArea("huawei").env("prod").center("").team("").user("").promoter("")
             .host("rmq-hw.digiwincloud.com.cn").docker("N").nodes("10.0.157.127,10.0.157.127,10.0.231.74").clusterName("athena生产rmq")
-            .location("Y").notesInfo("athena生产rmq")
+            .location("Y").notesInfo("athena生产rmq").offline("N")
             .exporterIp("10.100.174.129").exporterPort("9422").monitored("Y").build()
         );
         // 输出

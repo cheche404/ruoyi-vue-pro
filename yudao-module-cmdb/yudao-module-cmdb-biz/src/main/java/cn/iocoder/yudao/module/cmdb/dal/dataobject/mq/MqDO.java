@@ -75,6 +75,10 @@ public class MqDO extends BaseDO {
      */
     private String notesInfo;
     /**
+     * 离线
+     */
+    private String offline;
+    /**
      * exporter-ip
      */
     private String exporterIp;

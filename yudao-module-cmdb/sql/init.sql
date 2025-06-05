@@ -259,3 +259,13 @@ ALTER TABLE `cmdb_mongodb` MODIFY COLUMN `exporter_port` int DEFAULT NULL COMMEN
 ALTER TABLE `cmdb_redis` MODIFY COLUMN `exporter_port` int DEFAULT NULL COMMENT 'exporter端口';
 ALTER TABLE `cmdb_rabbitmq` MODIFY COLUMN `exporter_port` int DEFAULT NULL COMMENT 'exporter端口';
 
+ALTER TABLE `cmdb_mongodb`
+    CHANGE `node_info` `nodes_info` varchar(2048) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '主机信息';
+ALTER TABLE `cmdb_rabbitmq`
+    ADD COLUMN `offline` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'N' COMMENT '离线';
+ALTER TABLE `cmdb_redis`
+    CHANGE `node_info` `nodes_info` varchar(2048) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '主机信息';
+
+
+
+

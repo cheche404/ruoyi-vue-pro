@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.cmdb.controller.admin.mq.vo;
 
 import cn.iocoder.yudao.framework.common.pojo.PageParam;
+import com.alibaba.excel.annotation.ExcelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -52,6 +53,9 @@ public class MqPageReqVO extends PageParam {
 
     @Schema(description = "备注")
     private String notesInfo;
+
+    @Schema(description = "是否离线")
+    private String offline;
 
     @Schema(description = "exporter-ip")
     private String exporterIp;

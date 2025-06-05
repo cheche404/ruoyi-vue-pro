@@ -96,7 +96,7 @@ public class MongodbImportExcelVO {
 
     @Schema(description = "主机信息")
     @ExcelProperty("主机信息")
-    private String nodeInfo;
+    private String nodesInfo;
 
     @Schema(description = "exporter-ip")
     @ExcelProperty("exporter-ip")

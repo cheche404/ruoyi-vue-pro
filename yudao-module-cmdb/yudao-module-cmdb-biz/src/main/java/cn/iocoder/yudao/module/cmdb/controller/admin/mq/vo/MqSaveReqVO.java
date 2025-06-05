@@ -46,6 +46,9 @@ public class MqSaveReqVO {
     @Schema(description = "备注")
     private String notesInfo;
 
+    @Schema(description = "是否离线")
+    private String offline;
+
     @Schema(description = "exporter-ip")
     private String exporterIp;
 

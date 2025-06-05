@@ -105,7 +105,7 @@ public class RedisDO extends BaseDO {
     /**
      * 主机信息
      */
-    private String nodeInfo;
+    private String nodesInfo;
     /**
      * exporter-ip
      */

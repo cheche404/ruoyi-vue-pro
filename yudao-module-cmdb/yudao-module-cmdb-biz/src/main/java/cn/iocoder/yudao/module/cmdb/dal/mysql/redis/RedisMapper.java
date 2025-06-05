@@ -42,7 +42,7 @@ public interface RedisMapper extends BaseMapperX<RedisDO> {
                 .likeIfPresent(RedisDO::getNotes, reqVO.getNotes())
                 .likeIfPresent(RedisDO::getOu, reqVO.getOu())
                 .likeIfPresent(RedisDO::getTags, reqVO.getTags())
-                .likeIfPresent(RedisDO::getNodeInfo, reqVO.getNodeInfo())
+                .likeIfPresent(RedisDO::getNodesInfo, reqVO.getNodesInfo())
                 .likeIfPresent(RedisDO::getExporterIp, reqVO.getExporterIp())
                 .likeIfPresent(RedisDO::getExporterPort, reqVO.getExporterPort())
                 .eqIfPresent(RedisDO::getMonitored, reqVO.getMonitored())

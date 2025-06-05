@@ -41,7 +41,7 @@ public interface MongodbMapper extends BaseMapperX<MongodbDO> {
                 .eqIfPresent(MongodbDO::getOffline, reqVO.getOffline())
                 .likeIfPresent(MongodbDO::getOu, reqVO.getOu())
                 .likeIfPresent(MongodbDO::getTags, reqVO.getTags())
-                .likeIfPresent(MongodbDO::getNodeInfo, reqVO.getNodeInfo())
+                .likeIfPresent(MongodbDO::getNodesInfo, reqVO.getNodesInfo())
                 .likeIfPresent(MongodbDO::getExporterIp, reqVO.getExporterIp())
                 .likeIfPresent(MongodbDO::getExporterPort, reqVO.getExporterPort())
                 .eqIfPresent(MongodbDO::getMonitored, reqVO.getMonitored())

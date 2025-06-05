@@ -101,7 +101,7 @@ public class MongodbController {
             .instanceId("dds-uf6ad40e4397e574").instanceName("正式区MongoDB")
             .host("mongodbdap01.mongodb.rds.aliyuncs.com:3717,mongodbdap02.mongodb.rds.aliyuncs.com:3717")
             .clusterType("replicaset").cpu(null).mem(null).storage(2000)
-            .location("N").notes("中间件").offline("N").ou("").tags("{}").nodeInfo("[]")
+            .location("N").notes("中间件").offline("N").ou("").tags("{}").nodesInfo("[]")
             .exporterIp("").exporterPort("").monitored("Y").build(),
 
           MongodbImportExcelVO.builder().cloudArea("azure").env("prod").center("athena")
@@ -110,7 +110,7 @@ public class MongodbController {
             .host("athena-pl-0.i9fx4.mongodb.net:27017")
             .clusterType("replicaset").cpu(8).mem(32).storage(4096)
             .location("N").notes("智驱平台").offline("N").ou("").tags("{}")
-            .nodeInfo("['athena-shard-00-00.i9fx4.mongodb.net:27017', 'athena-shard-00-01.i9fx4.mongodb.net:27017', 'athena-shard-00-02.i9fx4.mongodb.net:27017']")
+            .nodesInfo("['athena-shard-00-00.i9fx4.mongodb.net:27017', 'athena-shard-00-01.i9fx4.mongodb.net:27017', 'athena-shard-00-02.i9fx4.mongodb.net:27017']")
             .exporterIp("").exporterPort("").monitored("Y").build(),
 
           MongodbImportExcelVO.builder().cloudArea("huawei").env("prod").center("ai")
@@ -119,7 +119,7 @@ public class MongodbController {
             .host("10.0.187.89:27017,10.0.82.96:27017,10.0.69.86:27017")
             .clusterType("replicaset").cpu(null).mem(null).storage(200)
             .location("N").notes("知识中台").offline("N").ou("").tags("{'area': 'Production', 'group': 'KSC'}")
-            .nodeInfo("[{'id': '24d41caa1b324274bc8cb946ef3f3959no02', 'name': 'dds-kmo_replica_node_2', 'private_ip': '10.0.187.89', 'public_ip': ''}, {'id': '3765b755b2d248c0be255d127c112fa0no02', 'name': 'dds-kmo_replica_node_3', 'private_ip': '10.0.82.96', 'public_ip': ''}, {'id': 'ebf3538dded6468f9a67b25a1934b191no02', 'name': 'dds-kmo_replica_node_1', 'private_ip': '10.0.69.86', 'public_ip': ''}]")
+            .nodesInfo("[{'id': '24d41caa1b324274bc8cb946ef3f3959no02', 'name': 'dds-kmo_replica_node_2', 'private_ip': '10.0.187.89', 'public_ip': ''}, {'id': '3765b755b2d248c0be255d127c112fa0no02', 'name': 'dds-kmo_replica_node_3', 'private_ip': '10.0.82.96', 'public_ip': ''}, {'id': 'ebf3538dded6468f9a67b25a1934b191no02', 'name': 'dds-kmo_replica_node_1', 'private_ip': '10.0.69.86', 'public_ip': ''}]")
             .exporterIp("").exporterPort("").monitored("Y").build()
         );
         // 输出

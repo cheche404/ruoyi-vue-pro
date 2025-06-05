@@ -101,7 +101,7 @@ public class MongodbDO extends BaseDO {
     /**
      * 主机信息
      */
-    private String nodeInfo;
+    private String nodesInfo;
     /**
      * exporter-ip
      */

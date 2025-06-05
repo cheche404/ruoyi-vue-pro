@@ -34,6 +34,7 @@ public interface MqMapper extends BaseMapperX<MqDO> {
         .likeIfPresent(MqDO::getClusterName, reqVO.getClusterName())
         .eqIfPresent(MqDO::getLocation, reqVO.getLocation())
         .likeIfPresent(MqDO::getNotesInfo, reqVO.getNotesInfo())
+        .eqIfPresent(MqDO::getOffline, reqVO.getOffline())
         .likeIfPresent(MqDO::getExporterIp, reqVO.getExporterIp())
         .likeIfPresent(MqDO::getExporterPort, reqVO.getExporterPort())
         .eqIfPresent(MqDO::getMonitored, reqVO.getMonitored())

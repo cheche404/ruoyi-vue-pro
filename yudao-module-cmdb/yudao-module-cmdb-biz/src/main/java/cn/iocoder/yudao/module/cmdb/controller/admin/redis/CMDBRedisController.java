@@ -102,7 +102,7 @@ public class CMDBRedisController {
             .instanceId("r-uf6mvemw4kp2dip2pu").instanceName("正式區INDUSTRY_Redis")
             .host("industry.redis.rds.aliyuncs.com").hostReadonly("")
             .clusterType("cluster").port("6379").passwd("Y").mem(16)
-            .offline("N").location("N").notes("").ou("").tags("{}").nodeInfo("192.168.19.16")
+            .offline("N").location("N").notes("").ou("").tags("{}").nodesInfo("192.168.19.16")
             .exporterIp("").exporterPort("").monitored("Y").build(),
 
           RedisImportExcelVO.builder().cloudArea("azure").env("prod").center("assc")
@@ -111,7 +111,7 @@ public class CMDBRedisController {
             .host("assc.redis.cache.windows.net").hostReadonly("")
             .clusterType("ha").port("6379").passwd("Y").mem(1)
             .offline("N").location("N").notes("assc").ou("").tags("{'area': 'Production', 'group': 'Tiger'}")
-            .nodeInfo("")
+            .nodesInfo("")
             .exporterIp("").exporterPort("").monitored("Y").build(),
 
           RedisImportExcelVO.builder().cloudArea("huawei").env("prod").center("data")
@@ -119,7 +119,7 @@ public class CMDBRedisController {
             .instanceId("").instanceName("数据中台生产redis-10.0.63.139")
             .host("10.0.63.139").hostReadonly("")
             .clusterType("cluster").port("16379").passwd("Y").mem(122)
-            .offline("N").location("Y").notes("数据中台生产redis-10.0.63.139").ou("").tags("{}").nodeInfo("")
+            .offline("N").location("Y").notes("数据中台生产redis-10.0.63.139").ou("").tags("{}").nodesInfo("")
             .exporterIp("").exporterPort("").monitored("Y").build()
         );
         // 输出

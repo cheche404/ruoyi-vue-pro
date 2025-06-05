@@ -65,7 +65,7 @@ public class MongodbSaveReqVO {
     private String tags;
 
     @Schema(description = "主机信息")
-    private String nodeInfo;
+    private String nodesInfo;
 
     @Schema(description = "exporter-ip")
     private String exporterIp;
