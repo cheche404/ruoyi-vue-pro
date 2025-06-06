@@ -263,6 +263,9 @@ ALTER TABLE `cmdb_mongodb`
     CHANGE `node_info` `nodes_info` varchar(2048) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '主机信息';
 ALTER TABLE `cmdb_rabbitmq`
     ADD COLUMN `offline` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'N' COMMENT '离线';
+ALTER TABLE `cmdb_rabbitmq`
+    ADD COLUMN `nodes` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '主机信息';
+
 ALTER TABLE `cmdb_redis`
     CHANGE `node_info` `nodes_info` varchar(2048) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '主机信息';
 

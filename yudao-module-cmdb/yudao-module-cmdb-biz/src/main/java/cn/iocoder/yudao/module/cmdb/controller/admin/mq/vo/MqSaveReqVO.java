@@ -35,7 +35,7 @@ public class MqSaveReqVO {
     private String docker;
 
     @Schema(description = "主机信息")
-    private String nodes;
+    private String nodesInfo;
 
     @Schema(description = "集群名称", example = "李四")
     private String clusterName;

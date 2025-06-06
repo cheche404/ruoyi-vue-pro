@@ -50,7 +50,7 @@ public class MqRespVO {
 
     @Schema(description = "主机信息")
     @ExcelProperty("主机信息")
-    private String nodes;
+    private String nodesInfo;
 
     @Schema(description = "集群名称", example = "李四")
     @ExcelProperty("集群名称")

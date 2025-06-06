@@ -61,7 +61,7 @@ public class MqDO extends BaseDO {
     /**
      * 主机信息
      */
-    private String nodes;
+    private String nodesInfo;
     /**
      * 集群名称
      */

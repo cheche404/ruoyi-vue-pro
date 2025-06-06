@@ -30,7 +30,7 @@ public interface MqMapper extends BaseMapperX<MqDO> {
         .likeIfPresent(MqDO::getPromoter, reqVO.getPromoter())
         .likeIfPresent(MqDO::getHost, reqVO.getHost())
         .likeIfPresent(MqDO::getDocker, reqVO.getDocker())
-        .likeIfPresent(MqDO::getNodes, reqVO.getNodes())
+        .likeIfPresent(MqDO::getNodesInfo, reqVO.getNodesInfo())
         .likeIfPresent(MqDO::getClusterName, reqVO.getClusterName())
         .eqIfPresent(MqDO::getLocation, reqVO.getLocation())
         .likeIfPresent(MqDO::getNotesInfo, reqVO.getNotesInfo())
