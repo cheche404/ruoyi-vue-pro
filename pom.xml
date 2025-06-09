@@ -8,19 +8,19 @@
     <version>${revision}</version>
     <packaging>pom</packaging>
     <modules>
-        <module>yudao-dependencies</module>
-        <module>yudao-framework</module>
+        <module>monops-dependencies</module>
+        <module>monops-framework</module>
         <!-- Server 主项目 -->
-        <module>yudao-server</module>
+        <module>monops-server</module>
         <!-- 各种 module 拓展 -->
-        <module>yudao-module-system</module>
-        <module>yudao-module-infra</module>
-        <module>yudao-module-cmdb</module>
-        <module>yudao-module-monitor</module>
+        <module>monops-module-system</module>
+        <module>monops-module-infra</module>
+        <module>monops-module-cmdb</module>
+        <module>monops-module-monitor</module>
     </modules>
 
     <name>${project.artifactId}</name>
-    <description>芋道项目基础脚手架</description>
+    <description>monops项目基础脚手架</description>
     <url>https://github.com/YunaiV/ruoyi-vue-pro</url>
 
     <properties>
@@ -43,7 +43,7 @@
         <dependencies>
             <dependency>
                 <groupId>cn.iocoder.boot</groupId>
-                <artifactId>yudao-dependencies</artifactId>
+                <artifactId>monops-dependencies</artifactId>
                 <version>${revision}</version>
                 <type>pom</type>
                 <scope>import</scope>
