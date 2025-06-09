@@ -20,7 +20,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
-import static cn.iocoder.yudao.module.cmdb.enums.ErrorCodeConstants.MQ_NOT_EXISTS;
 
 /**
  * CMDB-MQ Service 实现类

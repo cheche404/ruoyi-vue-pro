@@ -270,5 +270,15 @@ ALTER TABLE `cmdb_redis`
     CHANGE `node_info` `nodes_info` varchar(2048) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '主机信息';
 
 
+UPDATE cmdb_host SET update_time = CURRENT_TIMESTAMP WHERE update_time = '0000-00-00 00:00:00';
+UPDATE cmdb_redis SET update_time = CURRENT_TIMESTAMP WHERE update_time = '0000-00-00 00:00:00';
+UPDATE cmdb_mysql SET update_time = CURRENT_TIMESTAMP WHERE update_time = '0000-00-00 00:00:00';
+UPDATE cmdb_mongodb SET update_time = CURRENT_TIMESTAMP WHERE update_time = '0000-00-00 00:00:00';
+UPDATE cmdb_rabbitmq SET update_time = CURRENT_TIMESTAMP WHERE update_time = '0000-00-00 00:00:00';
 
+UPDATE cmdb_host SET create_time = CURRENT_TIMESTAMP WHERE create_time = '0000-00-00 00:00:00';
+UPDATE cmdb_redis SET create_time = CURRENT_TIMESTAMP WHERE create_time = '0000-00-00 00:00:00';
+UPDATE cmdb_mysql SET create_time = CURRENT_TIMESTAMP WHERE create_time = '0000-00-00 00:00:00';
+UPDATE cmdb_mongodb SET create_time = CURRENT_TIMESTAMP WHERE create_time = '0000-00-00 00:00:00';
+UPDATE cmdb_rabbitmq SET create_time = CURRENT_TIMESTAMP WHERE create_time = '0000-00-00 00:00:00';
 
