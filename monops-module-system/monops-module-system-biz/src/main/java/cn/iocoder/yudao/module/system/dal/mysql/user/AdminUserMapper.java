@@ -28,7 +28,9 @@ public interface AdminUserMapper extends BaseMapperX<AdminUserDO> {
     default PageResult<AdminUserDO> selectPage(UserPageReqVO reqVO, Collection<Long> deptIds, Collection<Long> userIds) {
         return selectPage(reqVO, new LambdaQueryWrapperX<AdminUserDO>()
                 .likeIfPresent(AdminUserDO::getUsername, reqVO.getUsername())
+                .likeIfPresent(AdminUserDO::getNickname, reqVO.getNickname())
                 .likeIfPresent(AdminUserDO::getMobile, reqVO.getMobile())
+                .likeIfPresent(AdminUserDO::getEmail, reqVO.getEmail())
                 .eqIfPresent(AdminUserDO::getStatus, reqVO.getStatus())
                 .betweenIfPresent(AdminUserDO::getCreateTime, reqVO.getCreateTime())
                 .inIfPresent(AdminUserDO::getDeptId, deptIds)
